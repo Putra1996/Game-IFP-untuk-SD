@@ -1,0 +1,93 @@
+<video id="cam" autoplay playsinline muted></video>
+<canvas id="camov"></canvas>
+<div id="camtag">⏳ Memuat AI…</div>
+
+<!-- ================= BERANDA ================= -->
+<section class="screen" id="scr-home">
+  <div class="home-wrap">
+    <h1 class="title-main">🫧 GESTURE BATTLE<span>PRO — JAWAB DENGAN GERAK!</span></h1>
+    <div class="title-sub">✋ Arahkan ujung jari ke gelembung jawaban</div>
+    <div class="menu-col">
+      <button class="btn big b-gold" data-mode="duel" id="btn-duel">⚔️ DUEL 2 TIM</button>
+      <button class="btn big b-blue" data-mode="solo" id="btn-solo">🎯 SOLO CHALLENGE</button>
+      <div class="mini-row">
+        <button class="btn small b-ghost" id="btn-help">❓ Cara Main</button>
+        <button class="btn small b-ghost" id="btn-guru">✏️ Soal Guru</button>
+      </div>
+    </div>
+  </div>
+  <div class="credit">Gesture Battle PRO • Edisi Kelas • untuk IFP &amp; layar sentuh</div>
+</section>
+
+<!-- ================= SETUP ================= -->
+<section class="screen" id="scr-setup">
+  <div class="topbar">
+    <button class="btn small b-ghost" id="btn-back">←</button>
+    <h2 id="setup-title">⚙️ Persiapan Duel</h2>
+  </div>
+  <div class="center-col">
+    <div class="panel">
+      <label class="flab">Nama Tim Kiri (🟡 emas)</label>
+      <input class="inp" id="in-p1" maxlength="18" placeholder="Tim Kiri">
+      <div id="wrap-p2">
+        <label class="flab">Nama Tim Kanan (🔵 biru)</label>
+        <input class="inp" id="in-p2" maxlength="18" placeholder="Tim Kanan">
+      </div>
+      <label class="flab">Mapel • Kelas (tampil di kartu soal)</label>
+      <div style="display:flex;gap:1.2vmin">
+        <input class="inp" id="in-mapel" maxlength="20" placeholder="Mapel: Informatika">
+        <input class="inp" id="in-kelas" maxlength="12" placeholder="Kelas: 1">
+      </div>
+    </div>
+    <div class="panel">
+      <label class="flab">📚 Kategori Soal</label>
+      <div class="chips" id="seg-cat"></div>
+      <label class="flab">🔢 Jumlah Soal</label>
+      <div class="chips" id="seg-rounds"></div>
+      <label class="flab">⏱ Detik per Soal</label>
+      <div class="chips" id="seg-time"></div>
+      <label class="flab">🎛 Mode Input</label>
+      <div class="chips" id="seg-input"></div>
+      <p class="hint" id="setup-note" style="margin-top:1.4vmin"></p>
+    </div>
+    <button class="btn big b-gold" id="btn-start">🚀 MULAI!</button>
+  </div>
+</section>
+
+<!-- ================= GAME ================= -->
+<section class="screen" id="scr-game">
+  <div class="sc" id="sc-l"><div class="lbl" id="sc-l-lbl">TIM KIRI</div><div class="val" id="sc-l-val">0</div></div>
+  <div class="sc" id="sc-r"><div class="lbl" id="sc-r-lbl">TIM KANAN</div><div class="val" id="sc-r-val">0</div></div>
+  <div id="qwrap">
+    <div id="chip-soal">Soal 1 / 10</div>
+    <div id="qcard"><div id="qlbl">—</div><div id="qtext">—</div></div>
+    <div id="tbar"><i id="tbar-i"></i></div>
+  </div>
+  <div id="bubbles"></div>
+  <div id="hostbar">
+    <button class="btn b-ghost" id="btn-snd">🔊</button>
+    <button class="btn b-ghost" id="btn-fs">🖼</button>
+    <button class="btn b-ghost" id="btn-pause">⏸</button>
+  </div>
+  <div id="splash"></div>
+</section>
+
+<!-- ================= HASIL ================= -->
+<section class="screen" id="res">
+  <div class="box">
+    <div id="res-title">Pertandingan Selesai!</div>
+    <div class="rrow">
+      <div class="rbox"><div class="rl" id="rb-l-lbl">TIM KIRI</div><div class="rv" id="rb-l-val">0</div></div>
+      <div id="win-pill">TIM KIRI PEMENANG</div>
+      <div class="rbox t1"><div class="rl" id="rb-r-lbl">TIM KANAN</div><div class="rv" id="rb-r-val">0</div></div>
+    </div>
+    <div style="display:flex;gap:1.6vmin">
+      <button class="btn big b-green" id="btn-again">Main Lagi</button>
+      <button class="btn big b-ghost" id="btn-menu">🏠 Menu</button>
+    </div>
+  </div>
+</section>
+
+<div id="modal-root"></div>
+<div id="toast"></div>
+<canvas id="fx"></canvas>

@@ -95,3 +95,24 @@ Kedua app sesi akhir (CC/AW) lolos penuh pada percobaan pertama suite-nya — bu
 Seluruh 6 deliverable **tetap layak produksi** setelah re-audit regresi penuh: tidak ada degradasi,
 tidak ada bug baru, semua mekanik inti, keamanan (XSS), persistensi, dan integrasi antar-halaman
 (boot dari hub) diverifikasi ulang secara otomatis.
+
+---
+
+# TAMBAHAN: GESTURE BATTLE PRO (30-09-2026)
+
+Game baru permintaan khusus — meniru 1:1 gameplay "Game Gesture Battle" viral di TikTok
+(@aes_435): gelembung jawaban bulat melayang di atas kamera fullscreen, cincin 🟡 emas (tim kiri)
+& 🔵 biru (tim kanan), kartu soal ungu "MAPEL, KELAS X", chip "Soal n/N", dua titik ujung jari
+(dwell ±0,9 dtk), jawaban salah = beku 2,5 dtk, layar hasil "Pertandingan Selesai!" dengan kotak
+skor + pil emas pemenang. Referensi visual diarsipkan di `tiktok-ref/`.
+
+| Suite | Hasil |
+|---|---|
+| jsdom (`gbp-audit.js`) | **29/29** |
+| Chrome E2E (`gbp-e2e.js`, fake cam + dwell 2 tangan) | **18/18** |
+| Page error | **0** · FPS **60** |
+
+**2 bug nyata tertangkap audit & diperbaiki:** (1) `genMath` mengembalikan `correct:null`
+(kategori matematika tak bisa dimenangkan); (2) `startGame` tidak me-reset `S.phase` setelah
+`over` → "Main Lagi"/game kedua mati senyap. Keduanya kini teruji regresinya.
+Grand total audit seluruh paket: **706 asersi** (659 + 47).

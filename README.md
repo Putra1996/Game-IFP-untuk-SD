@@ -10,7 +10,8 @@ kelima aplikasi pembelajaran interaktif untuk papan sentuh (IFP):
 | 3 | 🪑 Kuis Family 100 | `family-100/` | v1.0 | 85/85 |
 | 4 | ⚔️ Clash of Champions | `clash-champions/` | v1.0 | 90/90 |
 | 5 | 📷 Absensi Wajah Cerdas | `absensi-wajah/` | v1.0 | 99/99 |
-| | | | **Total** | **491/491** |
+| 6 | 🫧 Gesture Battle PRO | `gesture-battle-pro/` | v1.0 | 47/47 |
+| | | | **Total** | **538/538** |
 
 ## Menjalankan
 ```bash

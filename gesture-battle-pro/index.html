@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🫧 GESTURE BATTLE PRO — Jawab dengan Gerak!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0e1a3a; --navy2:#13244f; --panel:rgba(10,18,44,.82);
+  --ink:#f4f6ff; --mut:#aab4d8; --gold:#ffc832; --blue:#3ec1ff;
+  --green:#3ddc84; --red:#ff5e7d; --purple:#7c5cff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Fredoka','Baloo 2','Comic Sans MS',system-ui,sans-serif;
+  background:radial-gradient(120% 110% at 50% 0%,#1a2a5e 0%,var(--navy) 55%,#080f24 100%);
+  color:var(--ink);overflow:hidden;touch-action:manipulation;user-select:none}
+button{font-family:inherit;cursor:pointer;color:inherit}
+/* ---------- kamera latar ---------- */
+#cam{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:none;z-index:0;background:#000}
+body.cam #cam{display:block}
+#camov{position:fixed;inset:0;z-index:2;pointer-events:none;display:none}
+body.cam #camov{display:block}
+#camtag{position:fixed;top:1.6vmin;right:1.6vmin;z-index:8;background:rgba(0,0,0,.55);color:#c9ffd9;
+  border:2px solid rgba(61,220,132,.5);border-radius:999px;padding:.8vmin 2vmin;font-size:2.2vmin;font-weight:600;display:none}
+#camtag.show{display:block}
+/* ---------- layar ---------- */
+.screen{position:fixed;inset:0;display:none;flex-direction:column;overflow:auto;padding:3vmin;z-index:3}
+.screen.active{display:flex}
+/* ---------- tombol ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:1.2vmin;font-weight:600;
+  border:3px solid rgba(0,0,0,.28);border-radius:1.8vmin;background:rgba(255,255,255,.1);
+  padding:1.8vmin 3vmin;font-size:2.8vmin;transition:transform .08s}
+.btn:active{transform:scale(.95)}
+.btn.big{padding:2.6vmin 4.4vmin;font-size:3.6vmin;border-radius:2.4vmin}
+.btn.small{padding:1vmin 1.8vmin;font-size:2vmin;border-radius:1.2vmin}
+.b-gold{background:var(--gold);color:#231a00}
+.b-blue{background:var(--blue);color:#00202e}
+.b-green{background:var(--green);color:#042512}
+.b-ghost{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+/* ---------- beranda ---------- */
+.home-wrap{margin:auto;display:flex;flex-direction:column;align-items:center;gap:1.8vmin;text-align:center}
+.title-main{font-size:8.6vmin;line-height:1.04;font-weight:700;text-shadow:0 .6vmin 0 rgba(0,0,0,.35)}
+.title-main span{display:block;background:linear-gradient(90deg,var(--gold),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}
+.title-sub{background:var(--purple);border-radius:999px;padding:1vmin 3vmin;font-size:2.6vmin;font-weight:600;color:#fff}
+.menu-col{display:flex;flex-direction:column;gap:1.6vmin;margin-top:2vmin;width:min(64vmin,88vw)}
+.mini-row{display:flex;gap:1.4vmin;justify-content:center}
+.credit{position:absolute;bottom:2vmin;left:0;right:0;text-align:center;color:var(--mut);font-size:2vmin}
+/* ---------- panel & form ---------- */
+.panel{background:var(--panel);border:2px solid rgba(255,255,255,.12);border-radius:2vmin;padding:2.4vmin;backdrop-filter:blur(6px)}
+.inp{width:100%;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.18);border-radius:1.2vmin;
+  color:var(--ink);padding:1.6vmin 2vmin;font-size:2.4vmin;font-family:inherit;font-weight:500}
+.inp:focus{outline:none;border-color:var(--gold)}
+label.flab{display:block;font-size:2.1vmin;font-weight:600;color:var(--mut);margin:1.6vmin 0 .6vmin}
+.chips{display:flex;flex-wrap:wrap;gap:1.2vmin}
+.chip{background:rgba(255,255,255,.08);border:2px solid transparent;border-radius:999px;padding:1vmin 2.2vmin;font-size:2.3vmin;font-weight:600}
+.chip.on{border-color:var(--gold);background:rgba(255,200,50,.16);color:var(--gold)}
+.topbar{display:flex;align-items:center;gap:2vmin;margin-bottom:1.5vmin}
+.topbar h2{font-size:3.6vmin}
+.center-col{display:flex;flex-direction:column;gap:1.6vmin;max-width:96vmin;margin:0 auto;width:100%}
+/* ---------- GAME: kartu soal & skor ---------- */
+#scr-game{padding:0}
+#qwrap{position:fixed;top:1.8vmin;left:50%;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:.8vmin;pointer-events:none;width:min(92vw,120vmin)}
+#chip-soal{background:rgba(8,14,36,.8);border:1.5px solid rgba(255,255,255,.25);color:#dfe6ff;border-radius:999px;padding:.5vmin 2.4vmin;font-size:2.1vmin;font-weight:600}
+#qcard{background:linear-gradient(180deg,#7c5cff,#5f43e0);border:.45vmin solid rgba(255,255,255,.35);
+  border-radius:2.4vmin;padding:1.6vmin 4vmin 2vmin;text-align:center;box-shadow:0 1vmin 3vmin rgba(0,0,0,.45)}
+#qlbl{font-size:1.9vmin;font-weight:600;letter-spacing:.14em;color:#d9d2ff;text-transform:uppercase}
+#qtext{font-size:3.8vmin;font-weight:700;line-height:1.15;text-shadow:0 .3vmin 0 rgba(0,0,0,.25)}
+#tbar{width:min(60vmin,70vw);height:1vmin;background:rgba(255,255,255,.22);border-radius:999px;overflow:hidden}
+#tbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--green),var(--gold));border-radius:999px}
+.sc{position:fixed;top:1.8vmin;z-index:5;background:var(--panel);border:.45vmin solid var(--gold);
+  border-radius:1.8vmin;padding:.8vmin 2.2vmin;text-align:center;min-width:15vmin;backdrop-filter:blur(4px)}
+#sc-l{left:1.8vmin}
+#sc-r{right:1.8vmin;border-color:var(--blue)}
+.sc .lbl{font-size:1.9vmin;font-weight:700;letter-spacing:.08em}
+#sc-l .lbl{color:var(--gold)}
+#sc-r .lbl{color:var(--blue)}
+.sc .val{font-size:4.6vmin;font-weight:700;line-height:1.05}
+/* ---------- gelembung jawaban ---------- */
+#bubbles{position:fixed;inset:0;z-index:4}
+.bub{position:absolute;transform:translate(-50%,-50%);width:19vmin;height:19vmin;border-radius:50%;
+  background:rgba(10,18,44,.78);display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:2vmin;border:.55vmin solid var(--gold);box-shadow:0 .8vmin 2.4vmin rgba(0,0,0,.45),0 0 2vmin rgba(255,200,50,.25);
+  animation:bob 3.2s ease-in-out infinite;cursor:pointer}
+.bub.t1{border-color:var(--blue);box-shadow:0 .8vmin 2.4vmin rgba(0,0,0,.45),0 0 2vmin rgba(62,193,255,.25)}
+.bub .bt{font-size:2.5vmin;font-weight:700;line-height:1.12;color:#fff;overflow-wrap:break-word;pointer-events:none}
+.bub svg.pr{position:absolute;inset:-1.4vmin;width:calc(100% + 2.8vmin);height:calc(100% + 2.8vmin);transform:rotate(-90deg);pointer-events:none}
+.bub svg.pr circle{fill:none;stroke:#fff;stroke-width:5;stroke-dasharray:314.2;stroke-dashoffset:314.2;stroke-linecap:round}
+@keyframes bob{0%,100%{margin-top:0}50%{margin-top:-1.2vmin}}
+.bub.pop{animation:popout .32s ease-out forwards}
+@keyframes popout{0%{transform:translate(-50%,-50%) scale(1)}60%{transform:translate(-50%,-50%) scale(1.25)}100%{transform:translate(-50%,-50%) scale(0);opacity:0}}
+.bub.bad{border-color:#8a93b8 !important;background:rgba(60,66,92,.8)}
+.bub.ok{border-color:var(--green) !important;box-shadow:0 0 3vmin rgba(61,220,132,.6)}
+.bub.dim{opacity:.35}
+/* ---------- hostbar, splash, hasil ---------- */
+#hostbar{position:fixed;bottom:1.6vmin;left:1.6vmin;display:flex;gap:1vmin;z-index:8}
+#hostbar .btn{width:6.2vmin;height:6.2vmin;padding:0;font-size:2.8vmin;border-radius:1.4vmin;background:rgba(10,18,44,.7)}
+#splash{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:9;pointer-events:none}
+#splash.show{display:flex}
+#splash span{font-size:14vmin;font-weight:700;color:var(--gold);text-shadow:0 .8vmin 0 rgba(0,0,0,.4);animation:zoomin .5s ease-out}
+#splash span.ult{color:var(--green)}
+@keyframes zoomin{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+.fdmg{position:fixed;z-index:9;font-size:5vmin;font-weight:700;color:var(--green);text-shadow:0 .4vmin 0 rgba(0,0,0,.4);pointer-events:none;animation:rise 1.1s ease-out forwards}
+@keyframes rise{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-9vmin);opacity:0}}
+#res{background:linear-gradient(180deg,#16264f 0%,#0c1734 100%)}
+#res .box{margin:auto;display:flex;flex-direction:column;align-items:center;gap:2.4vmin;text-align:center}
+#res-title{font-size:6.4vmin;font-weight:700}
+.rrow{display:flex;gap:3vmin;align-items:center}
+.rbox{border:.5vmin solid var(--gold);border-radius:2vmin;padding:1.6vmin 3.4vmin;min-width:22vmin}
+.rbox.t1{border-color:var(--blue)}
+.rbox .rl{font-size:2.2vmin;font-weight:700;color:var(--gold)}
+.rbox.t1 .rl{color:var(--blue)}
+.rbox .rv{font-size:8vmin;font-weight:700}
+#win-pill{background:var(--gold);color:#231a00;font-weight:700;font-size:3vmin;border-radius:2vmin;padding:1.6vmin 4vmin;box-shadow:0 .6vmin 2vmin rgba(255,200,50,.35)}
+#win-pill.t1{background:var(--blue);color:#00202e}
+/* ---------- modal & toast ---------- */
+#modal-root{position:fixed;inset:0;background:rgba(5,9,24,.75);display:none;align-items:center;justify-content:center;z-index:20;padding:3vmin}
+#modal-root.open{display:flex}
+.modal{background:#16224a;border:2px solid rgba(255,255,255,.14);border-radius:2vmin;padding:3vmin;width:min(76vmin,94vw);max-height:88vh;overflow:auto}
+.modal h3{font-size:3.2vmin;margin-bottom:1.4vmin}
+.modal p,.modal ol{font-size:2.3vmin;color:var(--mut);line-height:1.5}
+.modal ol{margin:1vmin 0 1vmin 4.4vmin}
+.mrow{display:flex;gap:1.4vmin;justify-content:flex-end;margin-top:2.2vmin;flex-wrap:wrap}
+#toast{position:fixed;top:2vmin;left:50%;transform:translate(-50%,-16vmin);background:rgba(10,16,40,.95);
+  border:2px solid var(--gold);color:var(--ink);border-radius:999px;padding:1.2vmin 3vmin;font-size:2.5vmin;
+  font-weight:600;z-index:30;transition:transform .3s;pointer-events:none;max-width:92vw;text-align:center}
+#toast.show{transform:translate(-50%,0)}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:25}
+.hint{color:var(--mut);font-size:2.1vmin;line-height:1.45}
+
+</style>
+</head>
+<video id="cam" autoplay playsinline muted></video>
+<canvas id="camov"></canvas>
+<div id="camtag">⏳ Memuat AI…</div>
+
+<!-- ================= BERANDA ================= -->
+<section class="screen" id="scr-home">
+  <div class="home-wrap">
+    <h1 class="title-main">🫧 GESTURE BATTLE<span>PRO — JAWAB DENGAN GERAK!</span></h1>
+    <div class="title-sub">✋ Arahkan ujung jari ke gelembung jawaban</div>
+    <div class="menu-col">
+      <button class="btn big b-gold" data-mode="duel" id="btn-duel">⚔️ DUEL 2 TIM</button>
+      <button class="btn big b-blue" data-mode="solo" id="btn-solo">🎯 SOLO CHALLENGE</button>
+      <div class="mini-row">
+        <button class="btn small b-ghost" id="btn-help">❓ Cara Main</button>
+        <button class="btn small b-ghost" id="btn-guru">✏️ Soal Guru</button>
+      </div>
+    </div>
+  </div>
+  <div class="credit">Gesture Battle PRO • Edisi Kelas • untuk IFP &amp; layar sentuh</div>
+</section>
+
+<!-- ================= SETUP ================= -->
+<section class="screen" id="scr-setup">
+  <div class="topbar">
+    <button class="btn small b-ghost" id="btn-back">←</button>
+    <h2 id="setup-title">⚙️ Persiapan Duel</h2>
+  </div>
+  <div class="center-col">
+    <div class="panel">
+      <label class="flab">Nama Tim Kiri (🟡 emas)</label>
+      <input class="inp" id="in-p1" maxlength="18" placeholder="Tim Kiri">
+      <div id="wrap-p2">
+        <label class="flab">Nama Tim Kanan (🔵 biru)</label>
+        <input class="inp" id="in-p2" maxlength="18" placeholder="Tim Kanan">
+      </div>
+      <label class="flab">Mapel • Kelas (tampil di kartu soal)</label>
+      <div style="display:flex;gap:1.2vmin">
+        <input class="inp" id="in-mapel" maxlength="20" placeholder="Mapel: Informatika">
+        <input class="inp" id="in-kelas" maxlength="12" placeholder="Kelas: 1">
+      </div>
+    </div>
+    <div class="panel">
+      <label class="flab">📚 Kategori Soal</label>
+      <div class="chips" id="seg-cat"></div>
+      <label class="flab">🔢 Jumlah Soal</label>
+      <div class="chips" id="seg-rounds"></div>
+      <label class="flab">⏱ Detik per Soal</label>
+      <div class="chips" id="seg-time"></div>
+      <label class="flab">🎛 Mode Input</label>
+      <div class="chips" id="seg-input"></div>
+      <p class="hint" id="setup-note" style="margin-top:1.4vmin"></p>
+    </div>
+    <button class="btn big b-gold" id="btn-start">🚀 MULAI!</button>
+  </div>
+</section>
+
+<!-- ================= GAME ================= -->
+<section class="screen" id="scr-game">
+  <div class="sc" id="sc-l"><div class="lbl" id="sc-l-lbl">TIM KIRI</div><div class="val" id="sc-l-val">0</div></div>
+  <div class="sc" id="sc-r"><div class="lbl" id="sc-r-lbl">TIM KANAN</div><div class="val" id="sc-r-val">0</div></div>
+  <div id="qwrap">
+    <div id="chip-soal">Soal 1 / 10</div>
+    <div id="qcard"><div id="qlbl">—</div><div id="qtext">—</div></div>
+    <div id="tbar"><i id="tbar-i"></i></div>
+  </div>
+  <div id="bubbles"></div>
+  <div id="hostbar">
+    <button class="btn b-ghost" id="btn-snd">🔊</button>
+    <button class="btn b-ghost" id="btn-fs">🖼</button>
+    <button class="btn b-ghost" id="btn-pause">⏸</button>
+  </div>
+  <div id="splash"></div>
+</section>
+
+<!-- ================= HASIL ================= -->
+<section class="screen" id="res">
+  <div class="box">
+    <div id="res-title">Pertandingan Selesai!</div>
+    <div class="rrow">
+      <div class="rbox"><div class="rl" id="rb-l-lbl">TIM KIRI</div><div class="rv" id="rb-l-val">0</div></div>
+      <div id="win-pill">TIM KIRI PEMENANG</div>
+      <div class="rbox t1"><div class="rl" id="rb-r-lbl">TIM KANAN</div><div class="rv" id="rb-r-val">0</div></div>
+    </div>
+    <div style="display:flex;gap:1.6vmin">
+      <button class="btn big b-green" id="btn-again">Main Lagi</button>
+      <button class="btn big b-ghost" id="btn-menu">🏠 Menu</button>
+    </div>
+  </div>
+</section>
+
+<div id="modal-root"></div>
+<div id="toast"></div>
+<canvas id="fx"></canvas>
+<script>
+'use strict';
+/* ================= UTIL ================= */
+function $(s){return document.querySelector(s);}
+function $$(s){return Array.from(document.querySelectorAll(s));}
+function esc(s){return String(s==null?'':s);}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function ri(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+function pick(arr){return arr[ri(0,arr.length-1)];}
+function shuffle(a){const x=a.slice();for(let i=x.length-1;i>0;i--){const j=ri(0,i);[x[i],x[j]]=[x[j],x[i]];}return x;}
+const LS={
+  get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+};
+/* ================= BANK SOAL UMUM (3 tingkat × 12) ================= */
+const UMUM1=[
+ {q:'Singkatan dari HTML?',a:'HyperText Markup Language',w:['Home Tool Markup Language','Hyper Tab Main Language','High Text Machine Language']},
+ {q:'Ibu kota Provinsi Jawa Tengah?',a:'Semarang',w:['Surakarta','Yogyakarta','Magelang']},
+ {q:'Hasil 7 × 8 ?',a:'56',w:['54','48','63']},
+ {q:'Planet terdekat dari Matahari?',a:'Merkurius',w:['Venus','Bumi','Mars']},
+ {q:'Alat pernapasan ikan?',a:'Insang',w:['Paru-paru','Trakea','Kulit']},
+ {q:'Lambang negara Indonesia?',a:'Garuda Pancasila',w:['Komodo','Bunga Melati','Monas']},
+ {q:'Berapa sisi pada segitiga?',a:'3',w:['2','4','5']},
+ {q:'Warna bendera Indonesia?',a:'Merah Putih',w:['Biru Kuning','Merah Biru','Putih Hijau']},
+ {q:'Satu minggu berapa hari?',a:'7',w:['5','6','8']},
+ {q:'Alat tulis untuk menghapus?',a:'Penghapus',w:['Pensil','Penggaris','Crayon']},
+ {q:'Huruf vokal berjumlah?',a:'5',w:['4','6','21']},
+ {q:'Air yang mendidih menjadi?',a:'Uap',w:['Es','Embun','Salju']}
+];
+const UMUM2=[
+ {q:'Proklimasi kemerdekaan RI dibacakan tanggal?',a:'17 Agustus 1945',w:['1 Juni 1945','10 November 1945','28 Oktober 1928']},
+ {q:'Singkatan dari CPU?',a:'Central Processing Unit',w:['Computer Personal Unit','Central Program Utility','Core Processing Unifier']},
+ {q:'Penemu lampu listrik?',a:'Thomas Alva Edison',w:['Newton','Einstein','Graham Bell']},
+ {q:'Gunung tertinggi di Indonesia?',a:'Puncak Jaya',w:['Semeru','Rinjani','Merapi']},
+ {q:'Hasil dari 15% dari 200?',a:'30',w:['25','35','15']},
+ {q:'Gas yang diserap tumbuhan?',a:'Karbon dioksida',w:['Oksigen','Nitrogen','Hidrogen']},
+ {q:'Ibu kota Jepang?',a:'Tokyo',w:['Osaka','Kyoto','Beijing']},
+ {q:'Alat musik dari Jawa Barat?',a:'Angklung',w:['Gamelan','Sasando','Kolintang']},
+ {q:'Rumus luas lingkaran?',a:'π × r × r',w:['2 × π × r','π × d','4 × s']},
+ {q:'Software presentasi Microsoft?',a:'PowerPoint',w:['Excel','Word','Access']},
+ {q:'Pahlawan dari Aceh?',a:'Cut Nyak Dien',w:['Ki Hajar Dewantara','Pattimura','Sultan Hasanuddin']},
+ {q:'Konversi 1 kilometer ke meter?',a:'1.000 m',w:['100 m','10.000 m','10 m']}
+];
+const UMUM3=[
+ {q:'Organisasi PBB didirikan tahun?',a:'1945',w:['1948','1950','1939']},
+ {q:'Singkatan dari URL?',a:'Uniform Resource Locator',w:['Universal Router Line','United Resource Link','Uniform Route Logic']},
+ {q:'Tokoh Sang Saketi dalam wayang?',a:'Bima',w:['Arjuna','Yudhistira','Gatotkaca']},
+ {q:'Bunyi kecepatan di udara ± ?',a:'340 m/s',w:['150 m/s','1.240 m/s','3.000 m/s']},
+ {q:'Teorema Pythagoras untuk segitiga?',a:'Siku-siku',w:['Sama sisi','Tumpul','Lancip']},
+ {q:'Presiden pertama RI?',a:'Soekarno',w:['Soeharto','Megawati','Habibie']},
+ {q:'Perhitungan 2¹⁰ = ?',a:'1.024',w:['512','2.048','100']},
+ {q:'Bahasa pemrograman untuk web statis?',a:'HTML',w:['Python','C++','Java']},
+ {q:'Laut terluas di dunia?',a:'Samudra Pasifik',w:['Samudra Atlantik','Samudra Hindia','Samudra Arktik']},
+ {q:'Peristiwa Sumpah Pemuda tahun?',a:'1928',w:['1945','1908','1966']},
+ {q:'Satuan daya listrik?',a:'Watt',w:['Volt','Ampere','Ohm']},
+ {q:'Ibukota Kalimantan Timur?',a:'Samarinda',w:['Balikpapan','Banjarmasin','Tanjung Selor']}
+];
+const UMUM={1:UMUM1,2:UMUM2,3:UMUM3};
+/* ================= GENERATOR MATEMATIKA ================= */
+function makeOpts(ans){
+  const set=new Set([ans]);
+  while(set.size<4){
+    let d=ans+pick([-10,-9,-7,-6,-5,-4,-3,-2,-1,1,2,3,4,5,6,7,9,10]);
+    if(d<0)d=Math.abs(d)+1;
+    if(d!==ans)set.add(d);
+  }
+  return shuffle(Array.from(set));
+}
+function genMath(lv){
+  let a,b,ans,op;
+  const r=Math.random();
+  if(lv<=1){op=r<.5?'+':'−';a=ri(2,20);b=ri(1,op==='+'?20:a-1||1);ans=op==='+'?a+b:a-b;}
+  else if(lv===2){
+    if(r<.34){op='×';a=ri(3,12);b=ri(3,12);}
+    else if(r<.67){op='+';a=ri(20,99);b=ri(10,89);}
+    else{op='−';a=ri(30,99);b=ri(10,a-1);}
+    ans=op==='×'?a*b:(op==='+'?a+b:a-b);
+  }else{
+    if(r<.4){op='×';a=ri(11,25);b=ri(4,15);}
+    else if(r<.7){op='+';a=ri(120,899);b=ri(110,799);}
+    else{op='−';a=ri(200,999);b=ri(100,a-50);}
+    ans=op==='×'?a*b:(op==='+'?a+b:a-b);
+  }
+  const opts=makeOpts(ans);
+  return {text:a+' '+op+' '+b+' = ?',opts:opts,correct:opts.indexOf(ans),ans:ans};
+}
+/* ================= SOAL GURU (bank berbagi seri) ================= */
+function parseKuisTxt(t){
+  const out=[];
+  String(t||'').split(/\r?\n/).forEach(line=>{
+    const parts=line.split('|').map(x=>x.trim()).filter(Boolean);
+    if(parts.length<3||parts.length>5)return;
+    const opts=parts.slice(1);
+    out.push({text:parts[0],opts:opts,correct:0}); /* opsi pertama = benar */
+  });
+  return out;
+}
+let GURU_KUIS=[];
+function loadGuruBanks(){GURU_KUIS=parseKuisTxt(LS.get('gb_guru_kuis',''));}
+/* tanpa pengulangan sampai bank habis */
+const usedMap=new Map();
+function getUnused(key,bank){
+  const used=usedMap.get(key)||new Set();
+  let avail=bank.map((x,i)=>i).filter(i=>!used.has(i));
+  if(!avail.length){used.clear();avail=bank.map((x,i)=>i);}
+  const i=pick(avail);
+  used.add(i);usedMap.set(key,used);
+  return bank[i];
+}
+/* soal bank umum: buat opsi dari a/w */
+function bankToQ(e,lv){
+  const opts=shuffle([e.a,...e.w].slice(0,4));
+  return {text:e.q,opts:opts,correct:opts.indexOf(e.a)};
+}
+function pickQ(cat){
+  if(cat==='guru'){
+    if(GURU_KUIS.length){
+      const e=getUnused('guru',GURU_KUIS);
+      const order=shuffle([0,1,2,3].slice(0,e.opts.length));
+      const opts=order.map(i=>e.opts[i]);
+      return {text:e.text,opts:opts,correct:order.indexOf(0)};
+    }
+    return genMath(pick([1,2,3]));
+  }
+  if(cat==='matematika')return genMath(pick([1,2,2,3]));
+  if(cat==='umum'){const lv=pick([1,2,3]);return bankToQ(getUnused('u'+lv,UMUM[lv]),lv);}
+  /* campur */
+  if(Math.random()<.45)return genMath(pick([1,2,2,3]));
+  const lv=pick([1,2,3]);
+  return bankToQ(getUnused('u'+lv,UMUM[lv]),lv);
+}
+/* ================= SUARA ================= */
+const Snd={
+  on:true,ctx:null,
+  ac(){if(!this.ctx){try{this.ctx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}return this.ctx;},
+  tone(f,t,dur,type,vol){
+    if(!this.on)return;
+    const c=this.ac();if(!c)return;
+    if(c.state==='suspended'){try{c.resume();}catch(e){}}
+    const o=c.createOscillator(),g=c.createGain();
+    o.type=type||'sine';o.frequency.value=f;
+    g.gain.setValueAtTime(vol||.18,c.currentTime+t);
+    g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+t+dur);
+    o.connect(g);g.connect(c.destination);
+    o.start(c.currentTime+t);o.stop(c.currentTime+t+dur+.05);
+  },
+  click(){this.tone(600,0,.06,'triangle',.12);},
+  lock(){this.tone(320,0,.05,'triangle',.08);},
+  pop(){this.tone(880,0,.05,'square',.12);this.tone(1320,.03,.06,'square',.1);},
+  correct(){this.tone(660,0,.09,'sine',.18);this.tone(880,.09,.12,'sine',.18);},
+  wrong(){this.tone(200,0,.18,'sawtooth',.14);},
+  tick(){this.tone(1000,0,.04,'square',.07);},
+  go(){[523,659,784].forEach((f,i)=>this.tone(f,i*.09,.12,'triangle',.16));},
+  fanfare(){[523,659,784,1046].forEach((f,i)=>this.tone(f,i*.13,.22,'triangle',.2));this.tone(1318,.55,.4,'sine',.18);},
+  sad(){[392,330,262].forEach((f,i)=>this.tone(f,i*.15,.2,'sine',.15));}
+};
+/* ================= EFEK PARTIKEL ================= */
+const FX={
+  cv:null,cx:null,parts:[],
+  init(){this.cv=$('#fx');if(!this.cv)return;this.cx=this.cv.getContext('2d');this.size();addEventListener('resize',()=>this.size());},
+  size(){if(!this.cv)return;this.cv.width=innerWidth;this.cv.height=innerHeight;},
+  burst(x,y,n){
+    if(!this.cx)return;
+    const cols=['#ffc832','#3ec1ff','#3ddc84','#ff5e7d','#c084fc'];
+    for(let i=0;i<(n||30);i++){
+      const a=Math.random()*Math.PI*2,sp=2+Math.random()*7;
+      this.parts.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-2,g:.22,r:2+Math.random()*4,c:pick(cols),l:40+Math.random()*30});
+    }
+  },
+  rain(ms){this._rain=Date.now()+(ms||3000);},
+  step(){
+    if(!this.cx)return;
+    if(Date.now()<(this._rain||0)){
+      for(let i=0;i<4;i++)this.parts.push({x:Math.random()*innerWidth,y:-10,vx:(Math.random()-.5)*2,vy:2+Math.random()*3,g:.05,r:2+Math.random()*4,c:pick(['#ffc832','#3ec1ff','#3ddc84','#ff5e7d']),l:120});
+    }
+    const cx=this.cx;
+    cx.clearRect(0,0,this.cv.width,this.cv.height);
+    this.parts=this.parts.filter(p=>p.l>0);
+    for(const p of this.parts){
+      p.x+=p.vx;p.y+=p.vy;p.vy+=p.g;p.l--;
+      cx.globalAlpha=clamp(p.l/40,0,1);
+      cx.fillStyle=p.c;
+      cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fill();
+    }
+    cx.globalAlpha=1;
+  }
+};
+'use strict';
+/* ================= STATE & CFG ================= */
+const CFG_DFLT={mode:'duel',p1:'Tim Kiri',p2:'Tim Kanan',mapel:'',kelas:'',category:'campur',rounds:10,time:20,input:'auto'};
+const cfg=Object.assign({},CFG_DFLT,LS.get('gbp_cfg',{}));
+const S={phase:'idle',mode:'duel',round:0,rounds:10,players:[],q:null,correct:0,bubbles:[],timeLeft:0,timerInt:null,lastTick:-1,pauseLeft:0};
+const CAM={on:false,loading:false,hands:null,stream:null,busy:false,lastSend:0};
+const handsLive=[];            /* [{x,y,team,frozenUntil,seen}] posisi layar px */
+const DWELL_MS=900, CIRC=314.2;
+
+function teamCount(){return S.mode==='duel'?2:1;}
+function pName(i){return S.players[i]?S.players[i].name:(i===0?cfg.p1:cfg.p2);}
+
+/* ================= NAV & UI ================= */
+function show(id){$$('.screen').forEach(s=>s.classList.remove('active'));const el=document.getElementById(id);if(el)el.classList.add('active');}
+let toastT;
+function toast(m,ms){const t=$('#toast');if(!t)return;t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),ms||2400);}
+function showModal(html,btns){
+  const root=$('#modal-root');
+  root.innerHTML='<div class="modal">'+html+'<div class="mrow"></div></div>';
+  const row=root.querySelector('.mrow');
+  (btns||[]).forEach(b=>{
+    const bt=document.createElement('button');
+    bt.className='btn small '+(b.cls||'b-blue');bt.textContent=b.t;
+    bt.onclick=()=>{Snd.click();if(b.f)b.f();else closeModal();};
+    row.appendChild(bt);
+  });
+  root.classList.add('open');
+}
+function closeModal(){$('#modal-root').classList.remove('open');}
+function seg(el,opts,get,set){
+  if(!el)return;el.innerHTML='';
+  opts.forEach(o=>{
+    const b=document.createElement('button');
+    b.type='button';b.className='chip'+(o.value===get()?' on':'');b.textContent=o.label;
+    b.onclick=()=>{Snd.click();set(o.value);seg(el,opts,get,set);};
+    el.appendChild(b);
+  });
+}
+
+/* ================= SETUP ================= */
+function openSetup(mode){
+  cfg.mode=mode;
+  $('#setup-title').textContent=mode==='duel'?'⚙️ Persiapan Duel':'⚙️ Solo Challenge';
+  $('#wrap-p2').style.display=mode==='duel'?'block':'none';
+  $('#in-p1').value=cfg.p1;$('#in-p2').value=cfg.p2;
+  $('#in-mapel').value=cfg.mapel||'';$('#in-kelas').value=cfg.kelas||'';
+  renderSegs();
+  show('scr-setup');
+}
+function renderSegs(){
+  seg($('#seg-cat'),[{v:'campur',l:'🎲 Campur'},{v:'umum',l:'📚 Umum'},{v:'matematika',l:'🔢 Matematika'},{v:'guru',l:'✏️ Soal Guru'}],()=>cfg.category,v=>cfg.category=v);
+  seg($('#seg-rounds'),[{v:5,l:'5 soal'},{v:10,l:'10 soal'},{v:15,l:'15 soal'}],()=>cfg.rounds,v=>cfg.rounds=v);
+  seg($('#seg-time'),[{v:15,l:'15 dtk'},{v:20,l:'20 dtk'},{v:30,l:'30 dtk'}],()=>cfg.time,v=>cfg.time=v);
+  seg($('#seg-input'),[{v:'auto',l:'🤖 Kamera AI'},{v:'touch',l:'👆 Sentuh'}],()=>cfg.input,v=>cfg.input=v);
+  const note=$('#setup-note');
+  note.textContent=(cfg.mode==='duel'?2:1)+' pemain • ✏️ Soal Guru: '+(GURU_KUIS.length?GURU_KUIS.length+' tersedia':'kosong (pakai matematika)')+' • 🤖 Kamera: 1 tangan per tim';
+}
+
+/* ================= ALUR GAME ================= */
+function startGame(){
+  stopTimer();
+  S.phase='idle';            /* reset: game sebelumnya bisa meninggalkan fase 'over'/'pause' */
+  cfg.p1=($('#in-p1').value||'').trim()||'Tim Kiri';
+  cfg.p2=($('#in-p2').value||'').trim()||'Tim Kanan';
+  cfg.mapel=($('#in-mapel').value||'').trim();
+  cfg.kelas=($('#in-kelas').value||'').trim();
+  if(cfg.category==='guru'&&!GURU_KUIS.length){toast('✏️ Soal guru kosong — ganti kategori atau tambah soal!');return;}
+  LS.set('gbp_cfg',cfg);
+  usedMap.clear();
+  S.mode=cfg.mode;S.rounds=cfg.rounds;S.round=0;
+  S.players=cfg.mode==='duel'
+    ?[{name:cfg.p1,score:0,streak:0,frozenUntil:0},{name:cfg.p2,score:0,streak:0,frozenUntil:0}]
+    :[{name:cfg.p1,score:0,streak:0,frozenUntil:0}];
+  $('#sc-l-lbl').textContent=S.players[0].name.toUpperCase();
+  $('#sc-r-lbl').textContent=S.mode==='duel'?S.players[1].name.toUpperCase():'SOLO';
+  $('#sc-r').style.display=S.mode==='duel'?'block':'none';
+  closeModal();
+  show('scr-game');
+  updateScores();
+  if(cfg.input==='auto')enableCamera();else stopCamera(true);
+  splash('FIGHT!',false,900,()=>nextRound());
+}
+function splash(text,ok,ms,cb){
+  const sp=$('#splash');
+  sp.innerHTML='<span'+(ok?' class="ult"':'')+'>'+text+'</span>';
+  sp.classList.add('show');
+  if(ok)Snd.fanfare();else Snd.go();
+  setTimeout(()=>{sp.classList.remove('show');if(cb)cb();},ms);
+}
+function qLabel(){
+  const m=cfg.mapel||'KUIS';
+  const k=cfg.kelas?(', KELAS '+cfg.kelas):'';
+  return (m+k).toUpperCase();
+}
+function nextRound(){
+  if(S.phase==='over')return;
+  S.round++;
+  if(S.round>S.rounds){finishGame();return;}
+  S.q=pickQ(cfg.category);
+  S.correct=S.q.correct;
+  $('#chip-soal').textContent='Soal '+S.round+' / '+S.rounds;
+  $('#qlbl').textContent=qLabel();
+  $('#qtext').textContent=S.q.text;
+  spawnBubbles();
+  updateScores();
+  S.phase='ask';
+  S.timeLeft=cfg.time;S.lastTick=Math.ceil(S.timeLeft);
+  updTimer();
+  if(S.timerInt)clearInterval(S.timerInt);
+  S.timerInt=setInterval(()=>{
+    if(S.phase!=='ask')return;
+    S.timeLeft-=.1;
+    if(S.timeLeft<=0){S.timeLeft=0;updTimer();timeUp();return;}
+    updTimer();
+    const s=Math.ceil(S.timeLeft);
+    if(s<=5&&s!==S.lastTick){S.lastTick=s;Snd.tick();}
+  },100);
+}
+function updTimer(){
+  const f=clamp(S.timeLeft/Math.max(1,cfg.time),0,1);
+  const bar=$('#tbar-i');
+  if(bar){bar.style.width=Math.round(f*100)+'%';bar.style.background=f<=.25?'var(--red)':'linear-gradient(90deg,var(--green),var(--gold))';}
+}
+function timeUp(){
+  if(S.phase!=='ask')return;
+  S.phase='reveal';
+  Snd.sad();
+  revealCorrect();
+  toast('⏰ Waktu habis! Jawaban: '+String(correctVal()));
+  S.players.forEach(p=>p.streak=0);
+  setTimeout(nextRound,2200);
+}
+function correctVal(){return S.q.opts?S.q.opts[S.correct]:'';}
+function revealCorrect(){
+  S.bubbles.forEach(b=>{if(b.opt===S.correct&&!b.popped)b.el.classList.add('ok');});
+}
+
+/* ================= GELEMBUNG ================= */
+function slotsFor(team){
+  /* duel: 4 kiri (team0), 4 kanan (team1); solo: lebar layar; y 30–86% */
+  const xs=S.mode==='solo'?[14,36,58,80]:(team===0?[12,30,20,38]:[62,80,70,88]);
+  const ys=[34,50,68,84];
+  const out=[];
+  const order=shuffle([0,1,2,3]);
+  order.forEach((yi,k)=>out.push({x:xs[k],y:ys[yi]}));
+  return out;
+}
+function spawnBubbles(){
+  const layer=$('#bubbles');
+  layer.innerHTML='';
+  S.bubbles=[];
+  const n=S.q.opts.length;
+  const order=shuffle(S.q.opts.map((v,i)=>i));
+  const teams=S.mode==='duel'?[0,1]:[0];
+  teams.forEach(t=>{
+    const sl=slotsFor(t);
+    order.forEach((oi,k)=>{
+      const pos=sl[k];
+      const el=document.createElement('div');
+      el.className='bub'+(t===1?' t1':'');
+      el.style.left=pos.x+'%';el.style.top=pos.y+'%';
+      el.style.animationDelay=(Math.random()*2).toFixed(2)+'s';
+      el.innerHTML='<span class="bt">'+esc(S.q.opts[oi])+'</span>'+
+        '<svg class="pr" viewBox="0 0 110 110"><circle cx="55" cy="55" r="50"/></svg>';
+      el.dataset.opt=oi;el.dataset.team=t;
+      layer.appendChild(el);
+      const bub={opt:oi,team:t,val:S.q.opts[oi],el:el,popped:false,circ:el.querySelector('circle')};
+      el.addEventListener('pointerdown',ev=>{ev.preventDefault();popBubble(bub,t);});
+      S.bubbles.push(bub);
+    });
+  });
+}
+function bubbleCenter(b){
+  const r=b.el.getBoundingClientRect();
+  return {x:r.left+r.width/2,y:r.top+r.height/2,rad:r.width/2};
+}
+function popBubble(b,team){
+  if(S.phase!=='ask'||b.popped)return;
+  const P=S.players[team];
+  if(!P)return;
+  if(S.mode==='duel'&&Date.now()<P.frozenUntil){return;}
+  b.popped=true;
+  const ok=(b.opt===S.correct);
+  if(ok){
+    b.el.classList.add('pop');
+    Snd.pop();Snd.correct();
+    P.streak++;
+    const speed=Math.ceil(clamp(S.timeLeft,0,cfg.time)/Math.max(1,cfg.time)*5);
+    let pts=10+speed;
+    let bonus='';
+    if(P.streak>=3){pts+=5;bonus=' 🔥';}
+    P.score+=pts;
+    const c=bubbleCenter(b);
+    FX.burst(c.x,c.y,60);
+    floatPts(c.x,c.y,'+'+pts+bonus);
+    updateScores();
+    S.phase='reveal';
+    revealCorrect();
+    S.bubbles.forEach(x=>{if(!x.popped)x.el.classList.add('dim');});
+    setTimeout(nextRound,2000);
+  }else{
+    b.el.classList.add('bad','pop');
+    Snd.wrong();
+    P.streak=0;
+    P.frozenUntil=Date.now()+2500;
+    toast('❌ '+pName(team)+' beku 2,5 dtk!');
+    updateScores();
+    /* lanjut: tim lain masih bisa menjawab sampai waktu habis */
+  }
+}
+function floatPts(x,y,txt){
+  const d=document.createElement('div');
+  d.className='fdmg';d.textContent=txt;
+  d.style.left=(x-40)+'px';d.style.top=(y-30)+'px';
+  document.body.appendChild(d);
+  setTimeout(()=>d.remove(),1150);
+}
+function updateScores(){
+  $('#sc-l-val').textContent=S.players[0]?S.players[0].score:0;
+  $('#sc-r-val').textContent=S.players[1]?S.players[1].score:0;
+}
+
+/* ================= HASIL ================= */
+function finishGame(){
+  S.phase='over';
+  stopTimer();
+  stopCamera(true);
+  const ps=S.players.slice().sort((a,b)=>b.score-a.score);
+  const tie=S.players.length>1&&ps[0].score===ps[1].score;
+  $('#res-title').textContent='Pertandingan Selesai!';
+  $('#rb-l-lbl').textContent=S.players[0].name.toUpperCase();
+  $('#rb-l-val').textContent=S.players[0].score;
+  $('#rb-r-lbl').textContent=S.mode==='duel'?S.players[1].name.toUpperCase():'SOLO';
+  $('#rb-r-val').textContent=S.mode==='duel'?S.players[1].score:'—';
+  const pill=$('#win-pill');
+  if(tie){pill.textContent='🤝 SERI!';pill.style.display='block';}
+  else if(S.mode==='solo'){pill.textContent='🏁 SELESAI!';pill.style.display='block';}
+  else{pill.textContent=ps[0].name.toUpperCase()+' PEMENANG';pill.classList.toggle('t1',S.players[1]===ps[0]);pill.style.display='block';}
+  if(!tie&&S.mode==='duel'&&ps[0].score>0){FX.rain(4000);Snd.fanfare();}
+  else Snd.go();
+  show('res');
+}
+function stopTimer(){if(S.timerInt){clearInterval(S.timerInt);S.timerInt=null;}}
+
+/* ================= KAMERA AI ================= */
+function camTag(t){const el=$('#camtag');if(el){el.textContent=t;el.classList.add('show');}}
+function camTagHide(){const el=$('#camtag');if(el)el.classList.remove('show');}
+function sizeCamCanvas(){const cv=$('#camov');if(!cv)return;cv.width=innerWidth;cv.height=innerHeight;}
+function loadScript(src,timeout){
+  return new Promise((res,rej)=>{
+    const s=document.createElement('script');s.src=src;
+    const to=setTimeout(()=>rej(new Error('timeout')),timeout||20000);
+    s.onload=()=>{clearTimeout(to);res();};
+    s.onerror=()=>{clearTimeout(to);rej(new Error('gagal memuat'));};
+    document.head.appendChild(s);
+  });
+}
+function loadAI(){
+  if(!CAM.ai){
+    CAM.ai=(async()=>{
+      if(typeof Hands==='undefined')await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js',25000);
+      CAM.hands=new Hands({locateFile:f=>'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/'+f});
+      CAM.hands.setOptions({maxNumHands:2,modelComplexity:0,minDetectionConfidence:0.55,minTrackingConfidence:0.5});
+      CAM.hands.onResults(onHands);
+      return true;
+    })().catch(e=>{CAM.ai=null;throw e;});
+  }
+  return CAM.ai;
+}
+async function enableCamera(){
+  if(CAM.on||CAM.loading)return;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('📷 Kamera tidak didukung — pakai mode 👆 Sentuh.');return;}
+  CAM.loading=true;
+  camTag('⏳ Memuat AI… (sekali saja)');
+  try{
+    if(!CAM.stream){
+      CAM.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}},audio:false});
+      const v=$('#cam');v.srcObject=CAM.stream;await v.play();
+    }
+    document.body.classList.add('cam');
+    sizeCamCanvas();
+    await loadAI();
+    CAM.on=true;CAM.loading=false;
+    camTag('🤖 AI aktif — 2 tangan');
+    toast('🟡 Tangan 1 = tim kiri • 🔵 Tangan 2 = tim kanan. Tahan di gelembung ±1 dtk!');
+    camLoop();
+  }catch(e){
+    CAM.loading=false;
+    document.body.classList.remove('cam');
+    toast('📷 Kamera/AI gagal ('+(e.name||'kesalahan')+') — pakai mode 👆 Sentuh.',4000);
+  }
+}
+function stopCamera(silent){
+  CAM.on=false;CAM.loading=false;
+  if(CAM.stream){try{CAM.stream.getTracks().forEach(t=>t.stop());}catch(e){}}
+  CAM.stream=null;
+  const v=$('#cam');if(v)v.srcObject=null;
+  document.body.classList.remove('cam');
+  camTagHide();
+  handsLive.length=0;
+  const cv=$('#camov');
+  if(cv){const cx=cv.getContext('2d');if(cx)cx.clearRect(0,0,cv.width,cv.height);}
+}
+async function camLoop(){
+  if(!CAM.on)return;
+  if(!CAM.busy&&CAM.hands){
+    const v=$('#cam');
+    if(v&&v.readyState>=2&&performance.now()-CAM.lastSend>=50){
+      CAM.lastSend=performance.now();
+      CAM.busy=true;
+      try{await CAM.hands.send({image:v});}catch(e){}
+      CAM.busy=false;
+    }
+  }
+  requestAnimationFrame(camLoop);
+}
+function onHands(res){
+  const g=$('#scr-game');
+  if(!g||!g.classList.contains('active')||!CAM.on){handsLive.length=0;drawDots();return;}
+  const now=performance.now();
+  const lms=res.multiHandLandmarks||[];
+  const sw=innerWidth,sh=innerHeight;
+  const v=$('#cam');
+  const vw=(v&&v.videoWidth)||1280,vh=(v&&v.videoHeight)||720;
+  const sc=Math.max(sw/vw,sh/vh);
+  const ox=(sw-vw*sc)/2,oy=(sh-vh*sc)/2;
+  for(let i=0;i<2;i++){
+    const L=lms[i];
+    if(!L||!L[8]){continue;}
+    const P=L[8];
+    const rawX=ox+(1-P.x)*vw*sc;
+    const rawY=oy+P.y*vh*sc;
+    let h=handsLive[i];
+    if(!h){h={x:rawX,y:rawY,team:i,frozenUntil:0,seen:0};handsLive[i]=h;}
+    h.x+=(rawX-h.x)*.45;h.y+=(rawY-h.y)*.45;h.seen=now;h.team=i;
+  }
+  /* buang tangan hilang */
+  for(let i=0;i<2;i++)if(handsLive[i]&&now-handsLive[i].seen>350)handsLive[i]=undefined;
+  drawDots();
+  dwellStep(now);
+}
+function drawDots(){
+  const cv=$('#camov');
+  if(!cv)return;
+  const cx=cv.getContext('2d');
+  cx.clearRect(0,0,cv.width,cv.height);
+  handsLive.forEach(h=>{
+    if(!h)return;
+    const frozen=Date.now()<h.frozenUntil;
+    const col=frozen?'#8a93b8':(h.team===0?'#ffc832':'#3ec1ff');
+    cx.beginPath();cx.arc(h.x,h.y,22,0,Math.PI*2);cx.fillStyle=col+'44';cx.fill();
+    cx.beginPath();cx.arc(h.x,h.y,9,0,Math.PI*2);cx.fillStyle=col;cx.fill();
+    cx.lineWidth=3;cx.strokeStyle='#fff';cx.stroke();
+  });
+}
+/* dwell: tangan mendekat ke gelembung warnanya sendiri */
+function dwellStep(now){
+  if(S.phase!=='ask')return;
+  handsLive.forEach(h=>{
+    if(!h)return;
+    const frozen=Date.now()<h.frozenUntil;
+    /* reset semua progres ring tangan ini */
+    S.bubbles.forEach(b=>{
+      if(b.team!==h.team||b.popped)return;
+      if(b._dwOwner===h&&(!near(b,h)||frozen)){b._dwOwner=null;if(b.circ)b.circ.style.strokeDashoffset=CIRC;}
+    });
+    if(frozen)return;
+    const b=nearBubble(h);
+    if(!b)return;
+    if(b._dwOwner!==h){b._dwOwner=h;h._dwStart=now;}
+    const prog=(now-h._dwStart)/DWELL_MS;
+    if(b.circ)b.circ.style.strokeDashoffset=String(CIRC*(1-clamp(prog,0,1)));
+    if(prog>=1){b._dwOwner=null;if(b.circ)b.circ.style.strokeDashoffset=CIRC;popBubble(b,h.team);}
+  });
+}
+function near(b,h){
+  const c=bubbleCenter(b);
+  const rad=Math.max(26,c.rad+14);
+  return (h.x-c.x)*(h.x-c.x)+(h.y-c.y)*(h.y-c.y)<=rad*rad;
+}
+function nearBubble(h){
+  let best=null,bd=Infinity;
+  S.bubbles.forEach(b=>{
+    if(b.team!==h.team||b.popped)return;
+    const c=bubbleCenter(b);
+    const d=(h.x-c.x)*(h.x-c.x)+(h.y-c.y)*(h.y-c.y);
+    const rad=Math.max(26,c.rad+14);
+    if(d<=rad*rad&&d<bd){bd=d;best=b;}
+  });
+  return best;
+}
+
+/* ================= MODAL BANTUAN & GURU ================= */
+function showHelp(){
+  showModal('<h3>❓ Cara Main</h3><ol>'+
+    '<li>🫧 Jawaban melayang sebagai <b>gelembung</b>: cincin 🟡 emas = tim kiri, 🔵 biru = tim kanan.</li>'+
+    '<li>🤖 <b>Kamera AI</b>: ujung jari tim masing-masing (tangan 1 = kiri, tangan 2 = kanan). Arahkan ke gelembung, <b>tahan ±1 detik</b>!</li>'+
+    '<li>✅ Pop jawaban benar = poin (makin cepat makin banyak, 3× beruntun 🔥 bonus).</li>'+
+    '<li>❌ Pop yang salah = tangan <b>beku 2,5 detik</b> — tim lain bisa menyusul!</li>'+
+    '<li>⏰ Habis waktu → ronde seri, jawaban dibocorkan.</li>'+
+    '<li>🏆 Skor tertinggi di akhir menjadi <b>PEMENANG</b>!</li>'+
+    '</ol><p>💡 Butuh Chrome/Edge + izin kamera; internet saat pertama memuat AI. Tanpa kamera → mode 👆 Sentuh (tap gelembung).</p>',
+    [{t:'Siap! 🫧',cls:'b-gold'}]);
+}
+function showGuru(){
+  showModal('<h3>✏️ Soal Guru (Kustom)</h3>'+
+    '<p>Satu soal per baris, pisahkan dengan <code>|</code>:<br><code>Pertanyaan | Jawaban Benar | Salah | Salah | Salah</code></p>'+
+    '<textarea id="ta-k" class="inp" rows="7" style="font-size:2.1vmin" placeholder="Contoh: Singkatan dari HTML? | HyperText Markup Language | Home Tool ML | Hyper Tab ML | High Text ML"></textarea>'+
+    '<p class="hint" style="margin-top:1vmin">Bank berbagi dengan seluruh seri (Gesture Battle, Billionaire, Family 100, Clash of Champions).</p>',
+    [{t:'Tutup',cls:'b-ghost'},
+     {t:'💾 Simpan',cls:'b-green',f:()=>{
+       LS.set('gb_guru_kuis',$('#ta-k').value);
+       loadGuruBanks();
+       renderSegs();
+       toast('💾 Tersimpan: '+GURU_KUIS.length+' soal.');
+       closeModal();
+     }}]);
+  $('#ta-k').value=LS.get('gb_guru_kuis','');
+}
+
+/* ================= TOMBOL & LOOP ================= */
+function toggleFS(){try{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen();}catch(e){toast('Layar penuh tidak didukung');}}
+function goHome(){if(S.phase!=='over'&&S.timerInt){clearInterval(S.timerInt);S.timerInt=null;}S.phase='idle';stopCamera(true);closeModal();show('scr-home');}
+function bindButtons(){
+  $$('#scr-home .btn[data-mode]').forEach(b=>{
+    b.onclick=()=>{Snd.click();openSetup(b.dataset.mode);};
+  });
+  $('#btn-help').onclick=()=>{Snd.click();showHelp();};
+  $('#btn-guru').onclick=()=>{Snd.click();showGuru();};
+  $('#btn-back').onclick=()=>{Snd.click();show('scr-home');};
+  $('#btn-start').onclick=()=>{Snd.click();startGame();};
+  $('#btn-fs').onclick=toggleFS;
+  $('#btn-snd').onclick=()=>{Snd.on=!Snd.on;$('#btn-snd').textContent=Snd.on?'🔊':'🔇';Snd.click();};
+  $('#btn-pause').onclick=()=>{Snd.click();
+    if(S.phase==='ask'){S.pauseLeft=S.timeLeft;stopTimer();S.phase='pause';
+      showModal('<h3>⏸ Jeda</h3><p>Pertandingan dihentikan sementara.</p>',
+        [{t:'▶️ Lanjut',cls:'b-green',f:()=>{closeModal();S.phase='ask';S.timeLeft=S.pauseLeft;updTimer();
+          S.timerInt=setInterval(()=>{ if(S.phase!=='ask')return;S.timeLeft-=.1;
+            if(S.timeLeft<=0){S.timeLeft=0;updTimer();timeUp();return;}updTimer();
+            const s=Math.ceil(S.timeLeft);if(s<=5&&s!==S.lastTick){S.lastTick=s;Snd.tick();}},100);}},
+         {t:'🏠 Menu',cls:'b-ghost',f:goHome}]);
+    }else if(S.phase==='pause'){/* modal sudah terbuka */}
+  };
+  $('#btn-again').onclick=()=>{Snd.click();openSetup(S.mode);};
+  $('#btn-menu').onclick=()=>{Snd.click();goHome();};
+  addEventListener('resize',()=>{sizeCamCanvas();});
+}
+function fxLoop(){FX.step();requestAnimationFrame(fxLoop);}
+function boot(){
+  FX.init();
+  loadGuruBanks();
+  bindButtons();
+  requestAnimationFrame(fxLoop);
+  show('scr-home');
+}
+document.addEventListener('DOMContentLoaded',boot);
+
+/* ================= HOOK UJI ================= */
+window.G=S;window.CFG=cfg;window.CAM=CAM;
+window.__GBP={
+  startGame,openSetup,nextRound,spawnBubbles,popBubble,pickQ,parseKuisTxt,genMath,makeOpts,bankToQ,
+  finishGame,goHome,nearBubble,bubbleCenter,onHands,Snd,FX,UMUM,loadGuruBanks,GURU_KUIS_REF:()=>GURU_KUIS,
+  handsLive,DWELL_MS,CIRC,updateScores,timeUp,revealCorrect,correctVal
+};
+</script>
+</body>
+</html>

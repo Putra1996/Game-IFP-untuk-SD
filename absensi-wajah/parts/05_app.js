@@ -318,7 +318,13 @@ function autoMark(sid){
   mark(sid,'H',false);
   Snd.ok();
   const s=getStudents().find(x=>x.id===sid);
-  toast('✅ '+(s?s.nm:'Siswa')+' hadir!');
+  const strip=$('#scan-strip');
+  if(strip){
+    strip.textContent='✔ '+nameOf(sid)+' — HADIR!';
+    strip.classList.add('show');
+    clearTimeout(strip._t);
+    strip._t=setTimeout(()=>strip.classList.remove('show'),2600);
+  }
 }
 function nameOf(sid){const s=getStudents().find(x=>x.id===sid);return s?s.nm:'Siswa';}
 function markAll(){
@@ -344,14 +350,32 @@ function resetSession(){
 }
 function finishSession(){
   if(!SES)return;
-  SES.running=false;
+  const st=stuOf(getStudents(),SES.cls);
+  const unmarked=st.filter(s=>!SES.marks[s.id]);
+  showModal('<h3>📥 Selesaikan Absensi?</h3>'+
+    '<p>Siswa yang belum tercatat: <b>'+unmarked.length+' orang</b>.</p>'+
+    '<p style="margin-top:.6vmin">Finalisasi akan <b>menandai mereka ALPA otomatis</b> (status tetap bisa diedit di panel).</p>',
+    [{t:'📝 Simpan Saja',cls:'b-ghost',f:()=>{closeModal();doFinish(false);}},
+     {t:'🅰️ Finalisasi (kosong → Alpa)',cls:'b-red',f:()=>{closeModal();doFinish(true);}}]);
+}
+function doFinish(autoAlpa){
+  if(!SES)return;
+  let n=0;
+  if(autoAlpa){
+    stuOf(getStudents(),SES.cls).forEach(s=>{
+      if(!SES.marks[s.id]){mark(s.id,'A',false);n++;}
+    });
+  }
+  SES.running=false; /* dimatikan SETELAH penandaan selesai */
   stopCam();
   const total=stuOf(getStudents(),SES.cls).length;
   const h=Object.values(SES.marks).filter(m=>m.s==='H').length;
+  const a=Object.values(SES.marks).filter(m=>m.s==='A').length;
   CFG.rcls=SES.cls;CFG.rdate=SES.iso;persistCfg();
   openRecap();
+  if(n)toast('🅰️ '+n+' siswa dinyatakan Alpa — bisa diedit di sesi berikutnya.',3600);
   if(total&&h===total){Snd.fanfare();FX.rain(4000);toast('🎉 SEMPURNA! Semua hadir!');}
-  else{Snd.go();toast('📥 Sesi disimpan: '+h+'/'+total+' hadir.');}
+  else{Snd.go();toast('📥 Sesi disimpan: '+h+'/'+total+' hadir'+(a?' • '+a+' alpa':'')+'.');}
 }
 
 /* ================= WAJAH: DETEKSI, MATCHING, KOTAK ================= */
@@ -510,6 +534,9 @@ function renderRecap(){
     b.onclick=()=>{Snd.click();CFG.rdate=iso;persistCfg();renderRecap();};
     dwrap.appendChild(b);
   });
+  const lg=$('#rc-legend')||(()=>{const d=document.createElement('div');d.className='legend';d.id='rc-legend';
+    const listEl=$('#rc-list');listEl.parentNode.insertBefore(d,listEl);return d;})();
+  lg.innerHTML='<span class="lg lH">H • Hadir</span><span class="lg lI">I • Izin</span><span class="lg lS">S • Sakit</span><span class="lg lA">A • Alpa</span>';
   const sum=$('#rc-sum');sum.innerHTML='';
   const list=$('#rc-list');list.innerHTML='';
   if(!CFG.rcls||!CFG.rdate)return;
@@ -637,9 +664,24 @@ function bindButtons(){
        {t:'📷 Lanjut Absensi',cls:'b-gold',f:closeModal}]);
   };
 }
+function wireTabs(){
+  $$('.tabs .tbtn2').forEach(b=>{
+    b.onclick=()=>{
+      Snd.click();
+      const go=b.dataset.go;
+      if(go==='data'){renderData();show('scr-data');}
+      else if(go==='recap'){openRecap();}
+      else{ /* absen */
+        if(SES&&SES.running){show('scr-scan');}
+        else{openSetup();}
+      }
+    };
+  });
+}
 function boot(){
   FX.init();
   bindButtons();
+  wireTabs();
   requestAnimationFrame(fxLoop);
   show('scr-home');
 }
@@ -666,5 +708,5 @@ window.__AW={
   onFaces,euclid,bestMatch,buildCSV,setDesc,addStudent,mark,startSession,openStuModal,
   saveStuModal,delStudent,renderData,renderRecap,openRecap,openData,openSetup,renderSetup,
   confirmDelDate,downloadCsv,showCsvModal,finishSession,markAll,resetSession,exitToHome,
-  getSES:()=>SES,CFG,STATUS,stName,todayISO,fmtDate,fmtClock,DESC_TH,Snd,FX,clsList,stuOf,pctOf,AW,getClasses,registerClass,loadAI,getStudents,getRekap,setDesc,addStudent,saveStudents,saveRekap
+  getSES:()=>SES,CFG,STATUS,stName,todayISO,fmtDate,fmtClock,DESC_TH,Snd,FX,clsList,stuOf,pctOf,AW,getClasses,registerClass,loadAI,getStudents,getRekap,setDesc,addStudent,saveStudents,saveRekap,doFinish,wireTabs,autoMark,renderData,openSetup
 };

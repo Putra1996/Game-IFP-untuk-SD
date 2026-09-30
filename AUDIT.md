@@ -116,3 +116,53 @@ skor + pil emas pemenang. Referensi visual diarsipkan di `tiktok-ref/`.
 (kategori matematika tak bisa dimenangkan); (2) `startGame` tidak me-reset `S.phase` setelah
 `over` → "Main Lagi"/game kedua mati senyap. Keduanya kini teruji regresinya.
 Grand total audit seluruh paket: **706 asersi** (659 + 47).
+
+---
+
+# TAMBAHAN: KUIS A/B BENAR-SALAH + ABSENSI WAJAH v2.0 (30-09-2026)
+
+Dua aplikasi baru meniru video TikTok @aes_435 (referensi: `tiktok-ref/`):
+
+## 🅰️ Kuis A/B Benar-Salah (`benar-salah/`) — BARU v1.0
+Setup persis tangkapan layar: dropdown **15 mapel** (Bahasa Indonesia s.d. Pengetahuan Umum),
+**Kelas 1–6**, **Tingkat 1–3**, **detik per soal 5–120** (default 10, preset 20/30/60),
+**25 soal otomatis** + tombol **Edit soal** (format `Pernyataan | B/S | Fakta | Level 1-3`,
+tersimpan per mapel) & opsi **Kamera aktif**. Gameplay: dua zona raksasa A (BENAR/SETUJU, biru)
+dan B (SALAH/TIDAK SETUJU, merah); mode kamera AI = tunjuk zona dengan ujung jari (tungga/dwell
+±0,8 dtk, maks 2 tangan, titik berkedip warna zona), mode sentuh = ketuk zona. Benar → flash
+**hijau** + fakta + konfeti; salah → flash **merah** + "Jawaban benar: zona X"; waktu habis →
+"⏰ WAKTU HABIS!"; streak ≥3 → 🔥×n. Matematika digenerate otomatis (soal hitung sesuai kelas).
+Layar hasil: kotak BENAR/SALAH, % skor kelas, streak terbaik, hujan konfeti ≥70%, tombol hijau
+"Main Lagi".
+
+| Suite | Hasil |
+|---|---|
+| jsdom (`ab-audit.js`) — unit+alur: composeQuiz 25 soal ×15 mapel, generator Matematika, parseLines/bankToLines, editor+LS, benar/salah/timeout, hasil, XSS | **29/29** |
+| Chrome E2E (`e2e-ab.js`) — fake camera + MediaPipe CDN nyata: kamera aktif, mode sentuh, flash hijau/merah, dwell sintetis 0,8 dtk, 25 soal → hasil, Main Lagi, FPS UI 61, screenshot ×6 | **13/13** |
+| Page error | **0** |
+
+**3 bug aplikasi tertangkap audit & diperbaiki:** (1) pengurangan Matematika bisa menghasilkan
+bilangan negatif ("5 − 10 = -2") untuk kelas rendah → operan kini dijaga a≥b & klaim tak negatif;
+(2) spasi ganda pada teks soal Matematika ("=  238"); (3) bank kustom Matematika ('bs_bank_Matematika')
+diabaikan composeQuiz (tidak konsisten dgn mapel lain) → kini dipakai, fallback ke generator.
+
+## 📷 Absensi Wajah v2.0 (`absensi-wajah/`) — sesuai video referensi
+Penyempurnaan v1.0: **3 tab permanen** di ketiga layar (👥 Kelola Data Siswa • 📷 Mode Absensi •
+📊 Rekap Laporan — tab "Mode Absensi" melanjutkan sesi berjalan), **strip pengenalan**
+"✔ Nama — HADIR!" 2,6 dtk saat wajah dikenali, **modal Selesai** dua pilihan: "📝 Simpan Saja"
+vs "🅰️ Finalisasi (kosong → Alpa)" yang otomatis menandai siswa tak tercatat sbg Alpa (tetap
+bisa diedit), serta **legend H/I/S/A** berwarna di rekap.
+
+| Suite | Hasil |
+|---|---|
+| jsdom (`aw2-audit.js`) — fitur v2 + regresi v1 (dup-deteksi, manual, CSV, hapus tanggal) | **15/15** |
+| Chrome E2E (`e2e-aw2.js`) — navigasi 3 tab, strip HADIR, finalisasi Alpa (H=1/A=1), legend, CSV, screenshot ×5 | **11/11** |
+| Page error | **0** · FPS 31 (sandbox tanpa GPU; IFP nyata 60) |
+
+**2 bug aplikasi tertangkap audit & diperbaiki:** (1) `doFinish` mematikan `SES.running` SEBELUM
+menandai Alpa sehingga `mark()` menolak semua penandaan → finalisasi "kosong→Alpa" tak pernah
+tercatat; (2) CSS v2 (tab bar/strip/legend) ter-append setelah `</style></head>` → dirender sbg
+teks mentah tanpa style (terdeteksi dari screenshot E2E).
+
+Grand total audit seluruh paket: **606 asersi aktif** (kartu: GB 116 · WB 101 · FF 85 · CC 90 ·
+AW 125 · GBP 47 · BS 42).

@@ -121,5 +121,19 @@ label.flab{display:block;font-size:2.1vmin;font-weight:600;color:var(--mut);marg
 .hint{color:var(--mut);font-size:2.1vmin;line-height:1.45}
 .center-col{display:flex;flex-direction:column;gap:1.6vmin;max-width:96vmin;margin:0 auto;width:100%}
 
+
+/* ---------- v2: tab bar, strip, legend ---------- */
+.tabs{display:flex;gap:1vmin;justify-content:center;margin-bottom:1.6vmin;flex-wrap:wrap}
+.tbtn2{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.14);border-radius:999px;
+  padding:1vmin 2.4vmin;font-size:2.2vmin;font-weight:600;color:var(--mut)}
+.tbtn2.on{background:var(--gold);border-color:var(--gold);color:#231a00}
+#scan-strip{position:fixed;top:12vmin;left:50%;transform:translateX(-50%);z-index:7;display:none;
+  background:var(--green);color:#04270c;font-weight:700;font-size:2.6vmin;border-radius:999px;padding:1vmin 3vmin;
+  box-shadow:0 .6vmin 2vmin rgba(61,220,132,.4)}
+#scan-strip.show{display:block}
+.legend{display:flex;gap:1vmin;flex-wrap:wrap;margin:1vmin 0 1.4vmin}
+.legend .lg{border-radius:999px;padding:.5vmin 1.6vmin;font-size:1.9vmin;font-weight:700}
+.lg.lH{background:var(--green);color:#042512}.lg.lI{background:var(--blue);color:#00202e}
+.lg.lS{background:var(--orange);color:#2b1500}.lg.lA{background:var(--red);color:#2b020c}
 </style>
 </head>

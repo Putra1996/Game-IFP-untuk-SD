@@ -1,0 +1,120 @@
+<video id="cam" autoplay playsinline muted></video>
+<canvas id="camov"></canvas>
+<div id="camtag">⏳ Memuat AI…</div>
+
+<!-- ================= BERANDA ================= -->
+<section class="screen" id="scr-home">
+  <div class="home-wrap">
+    <div class="title-mini">🎯 KUIS <span>A/B</span></div>
+    <div class="ab-row">
+      <div class="pill pa">A</div>
+      <button id="btn-home-start" class="big">Mulai kuis</button>
+      <div class="pill pb">B</div>
+    </div>
+    <div id="home-info">25 soal siap dimainkan, 10 detik per soal.</div>
+    <div class="mini-row">
+      <button class="btn small b-ghost" id="btn-help">❓ Cara Main</button>
+      <button class="btn small b-ghost" id="btn-setup">⚙️ Pengaturan</button>
+    </div>
+  </div>
+  <div class="credit">Kuis A/B • Game Kamera Benar-Salah • untuk IFP &amp; layar sentuh</div>
+</section>
+
+<!-- ================= SETUP ================= -->
+<section class="screen" id="scr-setup">
+  <div class="topbar">
+    <button class="btn small b-ghost" id="btn-back">←</button>
+    <h2>⚙️ Atur Kuis — <span style="color:var(--gold)">mapel, jenjang, timer &amp; tingkat kesulitan</span></h2>
+  </div>
+  <div class="center-col">
+    <div class="panel">
+      <label class="flab">📚 Mata Pelajaran <span class="hint">(soal dibuat otomatis, tetap bisa diedit)</span></label>
+      <select class="inp" id="sel-mapel"></select>
+      <div style="display:flex;gap:1.6vmin;flex-wrap:wrap">
+        <div style="flex:1;min-width:38vmin">
+          <label class="flab">🏫 Kelas</label>
+          <select class="inp" id="sel-kelas"></select>
+        </div>
+        <div style="flex:1;min-width:38vmin">
+          <label class="flab">🎚 Tingkat kesulitan</label>
+          <select class="inp" id="sel-level">
+            <option value="1">Mudah</option>
+            <option value="2" selected>Sedang</option>
+            <option value="3">Sulit</option>
+          </select>
+        </div>
+      </div>
+      <label class="flab">⏱ Detik per soal</label>
+      <div class="timer-row">
+        <button class="tbtn" id="t-minus">−</button>
+        <div id="tval">10</div>
+        <button class="tbtn" id="t-plus">+</button>
+        <button class="tpres" data-t="20">20 detik</button>
+        <button class="tpres" data-t="30">30 detik</button>
+        <button class="tpres" data-t="60">60 detik</button>
+      </div>
+      <label class="flab">🎛 Mode input</label>
+      <select class="inp" id="sel-input">
+        <option value="auto">🤖 Kamera AI — tunjuk zona A/B</option>
+        <option value="touch">👆 Sentuh — ketuk zona A/B</option>
+      </select>
+      <div class="load-row" style="margin-top:2vmin">
+        <button class="btn b-green" id="btn-muat">✅ Muat soal ini</button>
+        <button class="btn b-ghost" id="btn-muat-edit">📝 Muat lalu buka Edit soal</button>
+      </div>
+      <p class="hint" id="load-note" style="margin-top:1.4vmin"></p>
+    </div>
+    <button class="btn big b-green" id="btn-start" disabled>🚀 MULAI KUIS</button>
+    <div id="setup-foot">
+      <button class="btn small b-ghost" id="btn-edit-soal">✏️ Edit soal</button>
+      <span class="chip-cam hint" id="foot-cam">📷 Kamera: standby</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= GAME ================= -->
+<section class="screen" id="scr-game">
+  <div id="gchip"><div class="l">BENAR</div><div class="v" id="gchip-v">0</div></div>
+  <div id="gtop">
+    <div id="chip-n">1</div>
+    <div id="chip-mapel">—</div>
+    <div id="qcard"><div id="qtext">—</div></div>
+    <div id="tbar"><i id="tbar-i"></i></div>
+  </div>
+  <div id="zones">
+    <div class="zone za" id="zone-a" data-k="A">
+      <svg class="pr" preserveAspectRatio="none" viewBox="0 0 100 60"><rect x="2" y="3" width="96" height="54" rx="6"/></svg>
+      <div class="zl">A</div><div class="zt">BENAR / SETUJU</div>
+    </div>
+    <div class="zone zb" id="zone-b" data-k="B">
+      <svg class="pr" preserveAspectRatio="none" viewBox="0 0 100 60"><rect x="2" y="3" width="96" height="54" rx="6"/></svg>
+      <div class="zl">B</div><div class="zt">SALAH / TIDAK SETUJU</div>
+    </div>
+  </div>
+  <div id="hostbar">
+    <button class="btn b-ghost" id="btn-snd">🔊</button>
+    <button class="btn b-ghost" id="btn-fs">🖼</button>
+    <button class="btn b-ghost" id="btn-home">🏠</button>
+  </div>
+  <div id="flash"><div class="big" id="flash-big"></div><div class="fact" id="flash-fact"></div></div>
+</section>
+
+<!-- ================= HASIL ================= -->
+<section class="screen" id="res">
+  <div class="box">
+    <div id="res-title">Kuis Selesai!</div>
+    <div class="rrow">
+      <div class="rcnt"><div class="l">✅ BENAR</div><div class="v" id="r-ok">0</div></div>
+      <div class="rcnt bad"><div class="l">❌ SALAH</div><div class="v" id="r-bad">0</div></div>
+    </div>
+    <div id="res-sub">—</div>
+    <div style="display:flex;gap:1.6vmin">
+      <button class="btn big b-green" id="btn-again">🔄 Main Lagi</button>
+      <button class="btn big b-ghost" id="btn-menu">🏠 Menu</button>
+    </div>
+  </div>
+</section>
+
+<div id="modal-root"></div>
+<div id="toast"></div>
+<canvas id="fx"></canvas>

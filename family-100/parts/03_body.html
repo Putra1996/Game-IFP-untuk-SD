@@ -1,0 +1,100 @@
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+
+<!-- ============ MENU UTAMA ============ -->
+<section id="scr-home" class="screen active">
+  <div class="spotlight"></div>
+  <span class="deco" style="left:8%;top:16%">🎯</span>
+  <span class="deco" style="right:10%;top:24%;animation-delay:.7s">💯</span>
+  <span class="deco" style="left:14%;bottom:16%;animation-delay:1.2s">👨‍👩‍👧‍👦</span>
+  <span class="deco" style="right:15%;bottom:14%;animation-delay:1.7s">⭐</span>
+  <div class="title-wrap">
+    <div class="t-logo">KUIS <span class="num">FAMILY</span> 100</div>
+    <span class="t-sub">🎯 Survei berkata… • Dua Tim • Pot 100 Poin</span>
+  </div>
+  <div class="menu-btns">
+    <button class="btn big b-gold" id="btn-play">🎮 MULAI BERMAIN</button>
+    <button class="btn big b-blue" id="btn-board">🏆 Papan Juara</button>
+    <div style="display:flex;gap:1.2vmin">
+      <button class="btn small b-ghost" id="btn-help">❓ Cara Main</button>
+      <button class="btn small b-ghost" id="btn-guru">✏️ Soal Guru</button>
+    </div>
+  </div>
+  <div class="home-foot">Kuis Family 100 • Edisi Kelas • untuk IFP &amp; layar sentuh</div>
+</section>
+
+<!-- ============ PENGATURAN ============ -->
+<section id="scr-setup" class="screen">
+  <div class="spotlight"></div>
+  <div class="panel">
+    <button class="gbtn back-btn" id="btn-back" title="Kembali" aria-label="Kembali">⬅</button>
+    <h2>🎯 Tim Siap Bertanding</h2>
+    <div class="frow"><label>Tim 1</label><input id="in-t1" class="inp" maxlength="14" placeholder="cth: Tim Kelas 5A"></div>
+    <div class="frow"><label>Tim 2</label><input id="in-t2" class="inp" maxlength="14" placeholder="cth: Tim Kelas 5B"></div>
+    <div class="frow"><label>Jumlah Ronde</label><div class="seg" id="seg-rounds"></div></div>
+    <div class="frow"><label>Sumber Soal</label><div class="seg" id="seg-src"></div></div>
+    <div class="frow"><label>Cara Menjawab</label><div class="seg" id="seg-input"></div></div>
+    <p class="hint">🎤 Guru jadi pembaca survei: siswa menjawab lisan, guru <b>mengetuk papan</b> (atau didukung gesture) untuk membuka jawaban.<br>❌ Jawaban tidak ada di papan = <b>STRIKE</b> (3× = giliran lawan mencuri!). Papan soal guru: <code>Jawaban:Poin</code>.</p>
+    <div class="setup-actions">
+      <button class="btn b-gold" id="btn-start">🚀 MULAI!</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GAME ============ -->
+<section id="scr-game" class="screen">
+  <video id="cam" class="bgcam" autoplay muted playsinline></video>
+  <canvas id="camov"></canvas>
+  <header id="hud">
+    <div class="tcard t0" id="tc0">
+      <span class="tlabel" id="tl0">TIM 1</span>
+      <span class="tname" id="tn0">Tim 1</span>
+      <span class="tscore" id="ts0">0</span>
+    </div>
+    <div id="mid">
+      <span id="potchip">POT 0</span>
+      <span id="roundchip">Ronde 1/3</span>
+      <div id="strikes"><span class="sx">X</span><span class="sx">X</span><span class="sx">X</span></div>
+    </div>
+    <div class="tcard t1" id="tc1">
+      <span class="tlabel" id="tl1">TIM 2</span>
+      <span class="tname" id="tn1">Tim 2</span>
+      <span class="tscore" id="ts1">0</span>
+    </div>
+  </header>
+  <div id="qbanner">…</div>
+  <div id="board"></div>
+  <div id="hostbar">
+    <button class="btn b-red" id="btn-strike">❌ STRIKE!</button>
+    <button class="btn small b-ghost" id="btn-undo">↩ Batalkan</button>
+    <button class="gbtn" id="btn-snd" title="Suara" aria-label="Suara">🔊</button>
+    <button class="gbtn" id="btn-fs" title="Layar penuh" aria-label="Layar penuh"><svg width="52%" viewBox="0 0 24 24" fill="none" stroke="#2448b8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg></button>
+    <button class="gbtn" id="btn-menu" title="Menu" aria-label="Menu">🏠</button>
+  </div>
+  <span id="camtag" class="aichip hidden">🤖 Memuat AI…</span>
+  <div id="bigx"><span>✕</span></div>
+  <div id="flash" class="hidden"></div>
+</section>
+
+<!-- ============ HASIL ============ -->
+<section id="scr-result" class="screen">
+  <div class="spotlight"></div>
+  <div class="panel" id="result-panel">
+    <div id="res-title">🏆</div>
+    <div id="res-big"></div>
+    <div id="res-sub"></div>
+    <div id="board"></div>
+    <div class="setup-actions">
+      <button class="btn b-gold" id="btn-res-again">🔁 Tanding Ulang</button>
+      <button class="btn b-blue" id="btn-res-menu">🏠 Menu Utama</button>
+    </div>
+  </div>
+</section>
+
+<!-- Kursor ujung jari AI -->
+<div class="pcursor idle" id="cur0"><div class="cdot"></div><span class="clab">TUNJUK</span></div>
+
+<div id="modal-root"></div>
+<div id="toast"></div>

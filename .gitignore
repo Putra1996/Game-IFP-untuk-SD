@@ -1,0 +1,11 @@
+# berkas pribadi lokal (tidak untuk direpositori publik)
+Downloads/
+uploads/
+*.log
+.DS_Store
+Thumbs.db
+.cache/
+.npm/
+.local/
+.config/
+.sudo_as_admin_successful

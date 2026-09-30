@@ -1,0 +1,141 @@
+</style>
+</head>
+<body>
+<div id="bg">
+  <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+  <span class="spark" style="left:6%;top:20%">⭐</span>
+  <span class="spark" style="left:12%;top:72%;animation-delay:.8s">✨</span>
+  <span class="spark" style="left:90%;top:58%;animation-delay:.4s">⭐</span>
+  <span class="spark" style="left:78%;top:10%;animation-delay:1.2s">✨</span>
+  <span class="spark" style="left:46%;top:6%;animation-delay:.6s">🌟</span>
+  <span class="spark" style="left:30%;top:86%;animation-delay:1.5s">✨</span>
+</div>
+<canvas id="fx"></canvas>
+
+<!-- ============ MENU UTAMA ============ -->
+<section id="scr-home" class="screen active">
+  <div class="robot">
+    <svg viewBox="0 0 120 120" width="100%">
+      <line x1="60" y1="10" x2="60" y2="22" stroke="#1d49c9" stroke-width="5"/>
+      <circle cx="60" cy="9" r="6" fill="#ffc800" stroke="#1d49c9" stroke-width="4"/>
+      <rect x="22" y="22" width="76" height="60" rx="18" fill="#4f86ff" stroke="#1d49c9" stroke-width="5"/>
+      <rect x="33" y="34" width="54" height="32" rx="12" fill="#0f1e46"/>
+      <circle cx="48" cy="49" r="6.5" fill="#7ef9ff"/><circle cx="72" cy="49" r="6.5" fill="#7ef9ff"/>
+      <path d="M50 59 q10 6 20 0" stroke="#7ef9ff" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+      <rect x="38" y="86" width="44" height="17" rx="8.5" fill="#7b3fe4" stroke="#1d49c9" stroke-width="4"/>
+      <circle cx="98" cy="50" r="5.5" fill="#ffc800" stroke="#1d49c9" stroke-width="3"/>
+      <circle cx="22" cy="56" r="5.5" fill="#ff5e7d" stroke="#1d49c9" stroke-width="3"/>
+    </svg>
+  </div>
+  <div class="home-wrap">
+    <div class="title">
+      <span class="crown">👑</span>
+      <span class="t1">GAME</span>
+      <span class="t2">GESTURE BATTLE</span><br>
+      <span class="ribbon">🤖 Berbasis AI</span>
+    </div>
+    <p class="tag">Belajar jadi lebih menyenangkan! ✨</p>
+    <div class="menu-btns">
+      <button class="btn big b-blue mode-btn" data-mode="duel">🥊 DUEL 2 PEMAIN</button>
+      <button class="btn big b-green mode-btn" data-mode="solo">🎯 SOLO CHALLENGE</button>
+      <button class="btn big b-purple mode-btn" data-mode="bs">✅❌ BENAR – SALAH</button>
+      <div class="mini-row">
+        <button class="btn small b-white" id="btn-help">❓ Cara Main</button>
+        <button class="btn small b-white" id="btn-guru">✏️ Soal Guru</button>
+      </div>
+    </div>
+  </div>
+  <div class="badges">
+    <div class="badge"><span class="ic bg-p">🧠</span>Melatih Berpikir Cepat</div>
+    <div class="badge"><span class="ic bg-y">⭐</span>Seru &amp; Interaktif</div>
+    <div class="badge"><span class="ic bg-g">🤖</span>Didukung Teknologi AI</div>
+    <div class="badge"><span class="ic bg-b">🎯</span>Meningkatkan Konsentrasi</div>
+  </div>
+  <div class="hbanner">🙌 Belajar jadi lebih menyenangkan!</div>
+  <div class="books">
+    <span class="bk bk1">Kolaborasi</span>
+    <span class="bk bk2">Sportivitas</span>
+    <span class="bk bk3">Prestasi</span>
+  </div>
+  <button class="gbtn fs-corner" id="btn-fs0" title="Layar penuh" aria-label="Layar penuh"><svg width="52%" viewBox="0 0 24 24" fill="none" stroke="#2f6bff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg></button>
+  <div class="foot">Gesture Battle • Berbasis AI • untuk IFP &amp; layar sentuh kelas</div>
+</section>
+
+<!-- ============ PENGATURAN ============ -->
+<section id="scr-setup" class="screen">
+  <div class="panel setup-panel">
+    <button class="gbtn back-btn" id="btn-back" title="Kembali" aria-label="Kembali">⬅</button>
+    <h2 id="setup-title">Pengaturan Game</h2>
+    <div class="frow" id="row-jml" style="display:none"><label>Jumlah Pemain</label><div class="seg" id="seg-jml"></div></div>
+    <div class="frow"><label>Pemain 1 (Kiri)</label><input id="in-p1" class="inp" maxlength="14" placeholder="Nama pemain kiri"></div>
+    <div class="frow" id="row-p2"><label>Pemain 2 (Kanan)</label><input id="in-p2" class="inp" maxlength="14" placeholder="Nama pemain kanan"></div>
+    <div class="frow"><label>Mata Pelajaran</label><input id="in-mapel" class="inp" maxlength="24" placeholder="cth: Informatika (opsional)"></div>
+    <div class="frow"><label>Kelas</label><input id="in-kelas" class="inp" maxlength="16" placeholder="cth: Kelas 1 (opsional)"></div>
+    <div class="frow"><label>Kategori Soal</label><div class="seg" id="seg-cat"></div></div>
+    <div class="frow"><label>Tingkat Kelas</label><div class="seg" id="seg-lvl"></div></div>
+    <div class="frow"><label>Jumlah Ronde</label><div class="seg" id="seg-rounds"></div></div>
+    <div class="frow"><label>Waktu / Soal</label><div class="seg" id="seg-time"></div></div>
+    <div class="frow"><label>Cara Menjawab</label><div class="seg" id="seg-input"></div></div>
+    <p class="hint">🤖 <b>Kamera AI (Mode AR):</b> seluruh layar menjadi cermin kelas — siswa <b>menunjuk lingkaran jawaban</b> dengan telunjuk, tahan ±1 detik.<br>👆 <b>Sentuh:</b> langsung ketuk/diklik jawaban (pas untuk layar sentuh IFP).</p>
+    <div class="setup-actions">
+      <button class="btn b-orange" id="btn-start">🚀 MULAI GAME</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GAME ============ -->
+<section id="scr-game" class="screen">
+  <video id="cam" class="bgcam" autoplay muted playsinline></video>
+  <canvas id="camov"></canvas>
+  <header id="hud">
+    <div class="pcard p0" id="pc0">
+      <span class="plabel" id="lb0">SISWA KIRI</span>
+      <div class="prow"><span class="pname" id="nm0">Pemain Kiri</span><span class="pscore" id="sc0">0</span><span class="pstreak" id="st0"></span></div>
+    </div>
+    <div id="mid">
+      <div class="tring">
+        <svg viewBox="0 0 84 84"><circle class="tr-bg" cx="42" cy="42" r="36"></circle><circle id="tr-fg" cx="42" cy="42" r="36"></circle></svg>
+        <span id="timenum">20</span>
+      </div>
+      <div id="soalpill">Soal: <b id="roundlbl">1/10</b></div>
+    </div>
+    <div class="pcard p1" id="pc1">
+      <span class="plabel" id="lb1">SISWA KANAN</span>
+      <div class="prow"><span class="pname" id="nm1">Pemain Kanan</span><span class="pscore" id="sc1">0</span><span class="pstreak" id="st1"></span></div>
+    </div>
+  </header>
+  <div id="qzone"><div id="qbanner"><span id="qsubject">MATEMATIKA</span><div id="qcard">Siap-siap…</div></div></div>
+  <div id="arenas">
+    <div class="arena" id="ar0" style="--pc:#ffc832"></div>
+    <div class="divider"></div>
+    <div class="arena" id="ar1" style="--pc:#3ec1ff"></div>
+  </div>
+  <div id="gamebar">
+    <button class="gbtn" id="btn-pause" title="Jeda" aria-label="Jeda">⏸</button>
+    <button class="gbtn" id="btn-snd" title="Suara" aria-label="Suara">🔊</button>
+    <button class="gbtn" id="btn-fs" title="Layar penuh" aria-label="Layar penuh"><svg width="52%" viewBox="0 0 24 24" fill="none" stroke="#2f6bff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg></button>
+  </div>
+  <span id="camtag" class="aichip hidden">🤖 Memuat AI…</span>
+  <div id="flash" class="hidden"></div>
+  <div id="countdown" class="hidden"></div>
+</section>
+
+<!-- ============ HASIL ============ -->
+<section id="scr-result" class="screen">
+  <div class="panel result-panel">
+    <div id="res-title">🏆</div>
+    <div id="podium"></div>
+    <div id="res-sub"></div>
+    <div class="setup-actions">
+      <button class="btn b-green" id="btn-res-again">🔁 Main Lagi</button>
+      <button class="btn b-white" id="btn-res-menu">🏠 Menu Utama</button>
+    </div>
+  </div>
+</section>
+
+<!-- Kursor ujung jari AI -->
+<div class="pcursor c0 idle" id="cur0"><div class="cdot"></div><span class="clab">P1</span></div>
+<div class="pcursor c1 idle" id="cur1"><div class="cdot"></div><span class="clab">P2</span></div>
+
+<div id="modal-root"></div>
+<div id="toast"></div>

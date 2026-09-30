@@ -1,0 +1,113 @@
+<video id="cam" autoplay playsinline muted></video>
+<div id="boxlayer"></div>
+<div id="camtag">⏳ Memuat AI…</div>
+
+<!-- ================= BERANDA ================= -->
+<section class="screen" id="scr-home">
+  <div class="home-wrap">
+    <h1 class="title-main">📷 ABSENSI<span>WAJAH CERDAS</span></h1>
+    <div class="title-sub">🤖 Pengenalan Wajah AI • Otomatis &amp; Anti Ribet</div>
+    <div class="menu-col">
+      <button class="btn big b-gold" id="btn-scan">📷 MULAI ABSENSI</button>
+      <button class="btn big b-blue" id="btn-data">👥 DATA SISWA</button>
+      <button class="btn big b-green" id="btn-recap">📅 REKAP ABSENSI</button>
+      <button class="btn b-ghost" id="btn-help">❓ Cara Pakai</button>
+    </div>
+  </div>
+  <div class="credit">Absensi Wajah Cerdas • Edisi Kelas • untuk IFP &amp; layar sentuh</div>
+</section>
+
+<!-- ================= SIAPKAN SESI ================= -->
+<section class="screen" id="scr-setup">
+  <div class="topbar">
+    <button class="btn small b-ghost" id="btn-back-setup">←</button>
+    <h2>📋 Siapkan Sesi Absensi</h2>
+  </div>
+  <div class="center-col">
+    <div class="panel">
+      <label class="flab">🏫 Pilih Kelas</label>
+      <div class="chips" id="cls-chips"></div>
+      <p class="hint" id="cls-empty" style="display:none;margin-top:1vmin">Belum ada kelas. Tambahkan siswa dulu di <b>👥 Data Siswa</b>.</p>
+      <button class="btn small b-blue" id="btn-goto-data" style="margin-top:1.4vmin">➕ Ke Data Siswa</button>
+    </div>
+    <div class="panel">
+      <label class="flab">⚙️ Mode Absensi</label>
+      <div class="chips" id="seg-mode"></div>
+      <p class="hint" id="setup-note" style="margin-top:1.4vmin"></p>
+    </div>
+    <button class="btn big b-gold" id="btn-start">🚀 MULAI SESI</button>
+  </div>
+</section>
+
+<!-- ================= SCAN / SESI ================= -->
+<section class="screen" id="scr-scan">
+  <div id="hostbar">
+    <button class="btn b-ghost" id="btn-snd" title="Suara">🔊</button>
+    <button class="btn b-ghost" id="btn-fs" title="Layar penuh">🖼</button>
+    <button class="btn b-ghost" id="btn-home" title="Menu">🏠</button>
+  </div>
+  <div class="scan-top">
+    <div class="panel">
+      <div id="scan-title">—</div>
+      <div id="scan-count">0/0 Hadir</div>
+      <div class="prog"><i id="scan-prog"></i></div>
+    </div>
+  </div>
+  <div class="panel" id="scan-list"></div>
+  <div class="scan-actions">
+    <button class="btn b-green" id="btn-all">✅ Semua Hadir</button>
+    <button class="btn b-ghost" id="btn-reset">↺ Reset</button>
+    <button class="btn big b-gold" id="btn-done">📥 Selesai</button>
+  </div>
+</section>
+
+<!-- ================= DATA SISWA ================= -->
+<section class="screen" id="scr-data">
+  <div class="topbar">
+    <button class="btn small b-ghost" id="btn-back-data">←</button>
+    <h2>👥 Data Siswa</h2>
+  </div>
+  <div class="center-col">
+    <div class="panel">
+      <label class="flab">🏫 Kelas</label>
+      <div class="chips" id="cls-chips-d"></div>
+      <div style="display:flex;gap:1.2vmin;margin-top:1.6vmin;flex-wrap:wrap">
+        <button class="btn small b-blue" id="btn-add-cls">➕ Kelas Baru</button>
+        <button class="btn small b-red" id="btn-del-cls">🗑 Hapus Kelas Ini</button>
+      </div>
+      <p class="hint" id="data-note" style="margin-top:1.4vmin"></p>
+    </div>
+    <div id="stu-list"></div>
+    <button class="btn big b-gold" id="btn-add-stu">➕ Tambah Siswa</button>
+  </div>
+</section>
+
+<!-- ================= REKAP ================= -->
+<section class="screen" id="scr-recap">
+  <div class="topbar">
+    <button class="btn small b-ghost" id="btn-back-recap">←</button>
+    <h2>📅 Rekap Absensi</h2>
+  </div>
+  <div class="center-col">
+    <div class="panel">
+      <label class="flab">🏫 Kelas</label>
+      <div class="chips" id="cls-chips-r"></div>
+      <label class="flab">🗓 Tanggal</label>
+      <div class="chips" id="rc-dates"></div>
+      <p class="hint" id="rc-empty" style="display:none;margin-top:1vmin">Belum ada catatan untuk kelas ini.</p>
+    </div>
+    <div class="panel" id="rc-wrap">
+      <div class="rc-sum" id="rc-sum"></div>
+      <div id="rc-list"></div>
+      <div style="display:flex;gap:1.2vmin;margin-top:1.6vmin;flex-wrap:wrap">
+        <button class="btn small b-green" id="btn-csv">📥 Unduh CSV</button>
+        <button class="btn small b-ghost" id="btn-csv-view">👁 Lihat CSV</button>
+        <button class="btn small b-red" id="btn-del-date">🗑 Hapus Tanggal Ini</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="modal-root"></div>
+<div id="toast"></div>
+<canvas id="fx"></canvas>

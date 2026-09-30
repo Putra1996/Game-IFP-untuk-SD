@@ -11,8 +11,8 @@ kelima aplikasi pembelajaran interaktif untuk papan sentuh (IFP):
 | 4 | ⚔️ Clash of Champions | `clash-champions/` | v1.0 | 90/90 |
 | 5 | 📷 Absensi Wajah Cerdas | `absensi-wajah/` | v2.0 | 125/125 |
 | 6 | 🫧 Gesture Battle PRO | `gesture-battle-pro/` | v1.0 | 47/47 |
-| 7 | 🅰️ Kuis A/B Benar-Salah | `benar-salah/` | v1.0 | 42/42 |
-| | | | **Total** | **606/606** |
+| 7 | 🅰️ Kuis A/B Benar-Salah | `benar-salah/` | v2.0 | 54/54 |
+| | | | **Total** | **618/618** |
 
 ## Menjalankan
 ```bash
@@ -43,8 +43,10 @@ Grand total audit: **659 asersi** (491 audit awal + 168 re-audit).
 
 ## Putaran 7: Kuis A/B + Absensi v2.0 (30-09-2026)
 Aplikasi baru **🅰️ Kuis A/B Benar-Salah** (`benar-salah/`, replika game viral: dua zona A/B,
-jawab dengan gestur tangan via kamera AI — audit 29 jsdom + 13 Chrome E2E = **42/42**) dan
+jawab dengan gestur tangan via kamera AI — v1 42/42, lalu **direvisi total v2.0** persis video
+referensi: gerbang password, pilihan ganda A/B, wash hijau/merah, jawaban otomatis saat timer
+habis — audit tambahan 37 jsdom + 17 Chrome E2E = **54/54**) dan
 **📷 Absensi Wajah v2.0** (3 tab permanen, strip "✔ … — HADIR!", finalisasi kosong→Alpa,
 legend H/I/S/A — tambahan 15 jsdom + 11 Chrome E2E = **26/26** di atas 99 audit v1).
-Grand total: **606 asersi**.
+Grand total: **618 asersi**.
 

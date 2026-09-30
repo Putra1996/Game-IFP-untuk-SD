@@ -166,3 +166,35 @@ teks mentah tanpa style (terdeteksi dari screenshot E2E).
 
 Grand total audit seluruh paket: **606 asersi aktif** (kartu: GB 116 · WB 101 · FF 85 · CC 90 ·
 AW 125 · GBP 47 · BS 42).
+
+---
+
+# REVISI MAYOR: KUIS A/B v2.0 — DISESUAIKAN 1:1 DENGAN VIDEO REFERENSI (30-09-2026)
+
+Pembandingan ulang frame-by-frame video sumber (7688134059884825863) menunjukkan replica v1.0
+masih berbeda di banyak hal. v2.0 membangun ulang sesuai video:
+
+| Aspek | v1.0 (lama) | v2.0 (sesuai video) |
+|---|---|---|
+| Gerbang | — (langsung beranda) | **"Kuis Interaktif" + password** (default 1234, bisa diganti), hint izin kamera |
+| Landing | Beranda terpisah | **Setup = landing**: pil A • tombol hijau "Mulai kuis" • pil B, sub "25 soal siap dimainkan, 10 detik per soal." |
+| Jenjang | — | **Dropdown Jenjang: SD (1-6) / SMP/MTs (7-9) / SMA/SMK (10-12)** — kelas menyesuaikan otomatis |
+| Preset timer | 20/30/60 | **5/10/15/20/30/60 detik** (10 aktif default) |
+| Bentuk soal | Pernyataan benar/salah | **Pilihan ganda A/B** (2 opsi teks) + soal Matematika angka; editor menerima kedua format |
+| Gameplay | Zona "BENAR/SALAH" besar | **Kamera fullscreen di belakang**, soal di atas, **kuadrat A (biru, kiri-bawah) & B (hijau, kanan-bawah) berisi teks pilihan**, top bar **"SOAL n/25 · KUIS BENAR-SALAH" + chip KELAS**, kotak SKOR, progress bar bawah |
+| Jawaban | Flash hijau/merah layar penuh | Timer habis → **"JAWABAN: X" muncul otomatis**; sisi benar tersapu **hijau**, sisi salah **merah** (wash) |
+| Konsep | Skor kelas biasa | Bertema **eliminasi** — "juara = siswa yang bertahan memilih benar sampai soal habis" |
+| Dwell | ±0,8 dtk | tetap ±0,8 dtk (gestur tunjuk sisi) |
+
+Audit v2.0: **jsdom 37/37** (gerbang+password salah/benar, jenjang→kelas, 6 preset, muat 25
+campuran PG+pernyataan, Matematika PG 80-sampel kunci/opsi valid, editor format ganda + LS,
+label opsi, wash hijau/merah/timeout, pill, hasil, Main Lagi, zona separuh layar, XSS) +
+**Chrome E2E 17/17** (kamera fake + AI CDN, password salah ditolak, SMP→Kelas 7, gameplay
+sentuh hijau/merah, dwell sintetis, timeout otomatis, 25 soal → hasil, Main Lagi, FPS UI 61,
+0 page error, 6 screenshot dibandingkan dgn frame video).
+
+**4 bug tertangkap audit & diperbaiki:** (1) blok setup lama tertinggal (fungsi ganda →
+`#sel-jenjang` null); (2) `#zone-b` tidak pernah ditempel kanan layar (zona menumpuk kiri);
+(3) hostbar menimpa chip "SOAL 1/25"; (4) transisi wash 0,25 dtk menyebabkan screenshot/eye-check
+momen hijau terlewat (dipercepat 0,12 dtk + pembersihan kelas per soal).
+Total kartu aplikasi kini: **BS 54** → grand total paket **618 asersi**.

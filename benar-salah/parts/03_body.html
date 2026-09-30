@@ -78,6 +78,12 @@
           </select>
         </div>
       </div>
+      <label class="flab">⚡ Kecepatan jawaban turun <span class="hint">(siswa mengikuti dengan tangan → aktif bergerak)</span></label>
+      <select class="inp" id="sel-fall">
+        <option value="santai">🐢 Santai — 4 detik</option>
+        <option value="sedang" selected>🚶 Sedang — ±2,4 detik</option>
+        <option value="cepat">🐇 Cepat — ±1,2 detik</option>
+      </select>
       <div class="load-row" style="margin-top:2vmin">
         <button class="btn b-blue" id="btn-muat">Muat soal ini</button>
         <button class="btn b-blue2" id="btn-muat-edit">Muat lalu buka Edit soal</button>
@@ -127,11 +133,11 @@
 
   <div class="zone" id="zone-a" data-k="A">
     <svg class="pr" preserveAspectRatio="none" viewBox="0 0 100 60"><rect x="2" y="3" width="96" height="54" rx="10"/></svg>
-    <div class="sq sa">A</div><div class="olab" id="lbl-a">BENAR</div>
+    <div class="zwrap" id="zwrap-a"><div class="sq sa">A</div><div class="olab" id="lbl-a">BENAR</div></div>
   </div>
   <div class="zone" id="zone-b" data-k="B">
     <svg class="pr" preserveAspectRatio="none" viewBox="0 0 100 60"><rect x="2" y="3" width="96" height="54" rx="10"/></svg>
-    <div class="sq sb">B</div><div class="olab" id="lbl-b">SALAH</div>
+    <div class="zwrap" id="zwrap-b"><div class="sq sb">B</div><div class="olab" id="lbl-b">SALAH</div></div>
   </div>
 
 </section>

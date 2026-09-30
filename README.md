@@ -9,10 +9,10 @@ kelima aplikasi pembelajaran interaktif untuk papan sentuh (IFP):
 | 2 | 💰 Who Wants to Be a Billionaire? | `kuis-miliaran/` | v1.0 | 101/101 |
 | 3 | 🪑 Kuis Family 100 | `family-100/` | v1.0 | 85/85 |
 | 4 | ⚔️ Clash of Champions | `clash-champions/` | v1.0 | 90/90 |
-| 5 | 📷 Absensi Wajah Cerdas | `absensi-wajah/` | v2.0 | 125/125 |
+| 5 | 📷 Absensi Wajah Cerdas | `absensi-wajah/` | v3.0 | 163/163 |
 | 6 | 🫧 Gesture Battle PRO | `gesture-battle-pro/` | v1.0 | 47/47 |
-| 7 | 🅰️ Kuis A/B Benar-Salah | `benar-salah/` | v2.0 | 54/54 |
-| | | | **Total** | **618/618** |
+| 7 | 🅰️ Kuis A/B Benar-Salah | `benar-salah/` | v2.1 | 79/79 |
+| | | | **Total** | **686/686** |
 
 ## Menjalankan
 ```bash
@@ -49,4 +49,22 @@ habis — audit tambahan 37 jsdom + 17 Chrome E2E = **54/54**) dan
 **📷 Absensi Wajah v2.0** (3 tab permanen, strip "✔ … — HADIR!", finalisasi kosong→Alpa,
 legend H/I/S/A — tambahan 15 jsdom + 11 Chrome E2E = **26/26** di atas 99 audit v1).
 Grand total: **618 asersi**.
+
+## Putaran 8: UI ala video "mba lulu" + animasi gestur (30-09-2026)
+**📷 Absensi Wajah v3.0** — antarmuka dibangun ulang persis video: tema terang, header tetap
+"📘 Absensi Wajah Cerdas", 3 tab (✎ Pendaftaran Siswa • 🗓 Mode Absensi • 📊 Log Kehadiran),
+Mode Absensi = panel **Kamera** (kartu kamera + garis pindai + welcome "Selamat Datang, NAMA!")
+berdampingan dgn panel **Absensi Hari Ini** (token status + jam per siswa). Wajah dikenali →
+strip hijau **"Terdeteksi: NAMA (KELAS) — HADIR!"** + **nama disebutkan suara (TTS id-ID,
+bisa dimatikan)**. Unduhan: CSV harian + **Excel daftar hadir bulanan (.xls) SEMUA kelas
+sekaligus** — 1 lembar per kelas, kolom tanggal ✓/S/I/A, JML H/S/I/A, garis pemisah minggu,
+"BULAN EFEKTIF" — persis pola Excel Kelas VII-A di video. Audit tambahan: **26 jsdom + 12
+Chrome E2E = 38** (total kartu 163).
+
+**🅰️ Kuis A/B v2.1** — animasi gerakan tangan ala video: kursor 👆 mengambang mengikuti tangan
+(dgn jejak memudar + cincin denyut), **jawaban A/B meluncur turun dari atas ke kotak sudut**
+(⚡ kecepatan diatur: Santai 4 dtk / Sedang 2,4 dtk / Cepat 1,2 dtk — siswa mengikuti dgn
+tangan → aktif bergerak), efek **cincin kena** saat target tercapai. Audit tambahan: **16+9
+jsdom + 13 Chrome E2E = 25** baru di luar regresi (total kartu 79).
+Grand total: **686 asersi**.
 

@@ -1,6 +1,7 @@
 'use strict';
 /* ================= STATE ================= */
-const CFG={jenjang:'SD',mapel:'Bahasa Indonesia',kelas:'1',level:'2',time:10,cam:true,count:25};
+const CFG={jenjang:'SD',mapel:'Bahasa Indonesia',kelas:'1',level:'2',time:10,cam:true,fall:'sedang',count:25};
+const FALLS={santai:4200,sedang:2400,cepat:1200};
 let QUIZ=[],qi=0,ok=0,bad=0,streak=0,bestStreak=0;
 const S={phase:'idle',loaded:false,timeLeft:0,timerInt:null,lastTick:-1};
 const CAM={on:false,loading:false,hands:null,stream:null,busy:false,lastSend:0,ai:null};
@@ -43,6 +44,7 @@ function fillSetup(){
   fillKelasOpts();
   $('#sel-mapel').innerHTML=MAPEL_LIST.map(m=>'<option'+(m===CFG.mapel?' selected':'')+'>'+m+'</option>').join('');
   $('#sel-level').value=CFG.level;
+  $('#sel-fall').value=CFG.fall;
   $('#tval').textContent=CFG.time;
   $$('.tpres').forEach(b=>b.classList.toggle('on',+b.dataset.t===CFG.time));
   const cc=$('#btn-cam-chip');
@@ -67,6 +69,7 @@ function readSetup(){
 }
 function loadQuiz(openEditor){
   readSetup();
+  CFG.fall=$('#sel-fall').value;
   QUIZ=composeQuiz(CFG.mapel,+CFG.level,CFG.kelas,CFG.count);
   S.loaded=true;
   $('#btn-start').disabled=false;
@@ -124,6 +127,7 @@ function nextQuestion(){
   $('#flash').className='';$('#flash').classList.remove('show');
   $('#pbar-i').style.width=Math.round((qi-1)/QUIZ.length*100)+'%';
   $$('.zone .pr rect').forEach(r=>{r.style.strokeDashoffset=320;});
+  dropAnswers();
   S.timeLeft=CFG.time;S.lastTick=Math.ceil(S.timeLeft);
   updBar();
   stopTimer();
@@ -136,6 +140,33 @@ function nextQuestion(){
     if(s<=5&&s!==S.lastTick){S.lastTick=s;Snd.tick();}
   },100);
 }
+/* jawaban A/B "turun" dari atas ke sudutnya — siswa mengikuti dgn tangan */
+function dropAnswers(){
+  const ms=FALLS[CFG.fall]||2400;
+  ['a','b'].forEach(k=>{
+    const z=document.getElementById('zwrap-'+k);
+    if(!z)return;
+    z.style.transition='none';
+    z.style.transform='translateY(-76vh)';
+    z.style.opacity='0';
+  });
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    ['a','b'].forEach(k=>{
+      const z=document.getElementById('zwrap-'+k);
+      if(!z)return;
+      z.style.transition='transform '+ms+'ms cubic-bezier(.25,.8,.3,1), opacity 300ms linear';
+      z.style.transform='translateY(0)';
+      z.style.opacity='1';
+    });
+  }));
+}
+function spawnRing(x,y){
+  const el=document.createElement('div');
+  el.className='hitring';
+  el.style.left=x+'px';el.style.top=y+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),700);
+}
 function updBar(){
   const f=clamp(S.timeLeft/Math.max(1,CFG.time),0,1);
   const bar=$('#tbar-i');
@@ -145,10 +176,11 @@ function zoneRect(k){
   if(k==='A')return {left:0,top:0,right:innerWidth/2,bottom:innerHeight,el:$('#zone-a')};
   return {left:innerWidth/2,top:0,right:innerWidth,bottom:innerHeight,el:$('#zone-b')};
 }
-function answer(k){
+function answer(k,src){
   if(S.phase!=='ask')return;
   S.phase='reveal';
   stopTimer();
+  if(k!=null){const rz=zoneRect(k);spawnRing((rz.left+rz.right)/2,(rz.top+rz.bottom)/2);if(src==='hand')Snd.lock();}
   const q=QUIZ[qi-1];
   const K=q.key||'A';
   const pill=$('#ans-pill');
@@ -320,13 +352,33 @@ function drawDots(){
   if(!cv)return;
   const cx=cv.getContext('2d');
   cx.clearRect(0,0,cv.width,cv.height);
+  const now=performance.now();
+  const hs=Math.round(Math.max(38,innerHeight*.075));
   handsLive.forEach(h=>{
     if(!h)return;
+    h._trail=h._trail||[];
+    h._trail.unshift({x:h.x,y:h.y});
+    if(h._trail.length>9)h._trail.pop();
     const inA=h.y>zoneRect('A').top,inB=h.y>zoneRect('B').top&&!inA;
     const col=inA?'#4d94ff':(inB?'#ff7a6e':'#ffc832');
-    cx.beginPath();cx.arc(h.x,h.y,24,0,Math.PI*2);cx.fillStyle=col+'55';cx.fill();
+    h._trail.forEach((t,i)=>{
+      const f=1-i/9;
+      cx.beginPath();cx.arc(t.x,t.y,4+16*f,0,Math.PI*2);
+      cx.globalAlpha=.35*f;
+      cx.fillStyle=col;cx.fill();cx.globalAlpha=1;
+    });
+    const pr=24+Math.sin(now/130)*5;
+    cx.beginPath();cx.arc(h.x,h.y,pr,0,Math.PI*2);
+    cx.lineWidth=5;cx.strokeStyle=col;cx.stroke();
     cx.beginPath();cx.arc(h.x,h.y,10,0,Math.PI*2);cx.fillStyle=col;cx.fill();
     cx.lineWidth=3;cx.strokeStyle='#fff';cx.stroke();
+    cx.save();
+    cx.translate(h.x+pr*.55,h.y-pr*.45);
+    cx.rotate(-.35);
+    cx.font=hs+'px "Segoe UI Emoji","Noto Color Emoji",serif';
+    cx.textAlign='center';cx.textBaseline='middle';
+    cx.fillText('\uD83D\uDC46',0,0);
+    cx.restore();
   });
 }
 function inZone(k,h){
@@ -345,7 +397,7 @@ function dwellStep(now){
     if(h._k!==k){h._k=k;h._dwStart=now;}
     const prog=(now-h._dwStart)/DWELL_MS;
     if(rect)rect.style.strokeDashoffset=String(320*(1-clamp(prog,0,1)));
-    if(prog>=1){h._k=null;if(rect)rect.style.strokeDashoffset=320;answer(k);}
+    if(prog>=1){h._k=null;if(rect)rect.style.strokeDashoffset=320;answer(k,'hand');}
   });
 }
 
@@ -357,7 +409,7 @@ function showHelp(){
     '<li>\ud83e\udd16 Kamera aktif: kelas tampil di layar; siswa sisi <b>A (kiri)</b> atau <b>B (kanan)</b> menunjuk/diangkat, tahan \u00b10,8 detik. Tanpa kamera: ketuk sisi.</li>'+
     '<li>\u23f1\ufe0f Saat waktu habis, <b>jawaban tampil otomatis</b>: sisi benar <b>hijau</b>, sisi salah <b>merah</b>.</li>'+
     '<li>\ud83c\udfc6 Siswa yang memilih benar terus sampai soal habis adalah juaranya!</li>'+
-    '</ol><p>\ud83d\udca1 Butuh Chrome/Edge + izin kamera; internet saat pertama memuat AI. Soal guru bisa diedit di \u270f\ufe0f Edit soal.</p>',
+    '<li>⚡ <b>Kecepatan jawaban turun</b> bisa diatur di pengaturan — jawaban meluncur turun, siswa menggerakkan tangan mengikutinya (aktif bergerak!).</li></ol><p>\ud83d\udca1 Butuh Chrome/Edge + izin kamera; internet saat pertama memuat AI. Soal guru bisa diedit di \u270f\ufe0f Edit soal.</p>',
     [{t:'Siap! \ud83c\udfaf',cls:'b-green'}]);
 }
 function toggleFS(){try{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen();}catch(e){toast('Layar penuh tidak didukung');}}
@@ -385,6 +437,7 @@ function bind(){
   $('#sel-mapel').onchange=()=>{CFG.mapel=$('#sel-mapel').value;$('#btn-start').disabled=true;$('#load-note').textContent='';};
   $('#sel-level').onchange=()=>{CFG.level=$('#sel-level').value;$('#btn-start').disabled=true;$('#load-note').textContent='';};
   $('#btn-cam-chip').onclick=()=>{Snd.click();CFG.cam=!CFG.cam;fillSetup();};
+  $('#sel-fall').onchange=()=>{CFG.fall=$('#sel-fall').value;};
   $('#btn-muat').onclick=()=>{Snd.click();loadQuiz(false);};
   $('#btn-muat-edit').onclick=()=>{Snd.click();loadQuiz(true);};
   $('#btn-edit-soal').onclick=()=>{Snd.click();if(!QUIZ.length){toast('Muat soal dulu.');return;}openEditorModal(false);};
@@ -402,7 +455,7 @@ function bind(){
   $('#btn-fs').onclick=toggleFS;
   $('#btn-snd').onclick=()=>{Snd.on=!Snd.on;$('#btn-snd').textContent=Snd.on?'\ud83d\udd0a':'\ud83d\udd07';Snd.click();};
   ['a','b'].forEach(k=>{
-    $('#zone-'+k).addEventListener('pointerdown',e=>{e.preventDefault();answer(k.toUpperCase());});
+    $('#zone-'+k).addEventListener('pointerdown',e=>{e.preventDefault();answer(k.toUpperCase(),'tap');});
   });
   addEventListener('resize',()=>{sizeCamCanvas();});
 }
@@ -434,5 +487,5 @@ window.__AB={
   composeQuiz,parseBank,genMathQ,parseLines,bankToLines,loadQuiz,startQuiz,answer,nextQuestion,
   finishQuiz,openSetup,openEditorModal,zoneRect,flash,BANK,MAPEL_LIST,QUIZ_REF:()=>QUIZ,
   getStats:()=>({qi,ok,bad,streak,bestStreak}),Snd,FX,onHands,handsLive,DWELL_MS,updHomeInfo,
-  checkPass,getPass,tryLogin,fillSetup,fillKelasOpts,readSetup
+  checkPass,getPass,tryLogin,fillSetup,fillKelasOpts,readSetup,FALLS,spawnRing,dropAnswers
 };

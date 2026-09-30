@@ -1,86 +1,73 @@
-<video id="cam" autoplay playsinline muted></video>
-<div id="boxlayer"></div>
 <div id="camtag">⏳ Memuat AI…</div>
 
-<!-- ================= BERANDA ================= -->
-<section class="screen" id="scr-home">
-  <div class="home-wrap">
-    <h1 class="title-main">📷 ABSENSI<span>WAJAH CERDAS</span></h1>
-    <div class="title-sub">🤖 Pengenalan Wajah AI • Otomatis &amp; Anti Ribet</div>
-    <div class="menu-col">
-      <button class="btn big b-gold" id="btn-scan">📷 MULAI ABSENSI</button>
-      <button class="btn big b-blue" id="btn-data">👥 DATA SISWA</button>
-      <button class="btn big b-green" id="btn-recap">📅 REKAP ABSENSI</button>
-      <button class="btn b-ghost" id="btn-help">❓ Cara Pakai</button>
-    </div>
-  </div>
-  <div class="credit">Absensi Wajah Cerdas • Edisi Kelas • untuk IFP &amp; layar sentuh</div>
-</section>
+<header id="apphead">
+  <div class="ht">📘 Absensi Wajah Cerdas</div>
+  <div class="hs">Sistem presensi otomatis berbasis pengenalan wajah</div>
+</header>
 
-<!-- ================= SIAPKAN SESI ================= -->
-<section class="screen" id="scr-setup">
-  <div class="topbar">
-    <button class="btn small b-ghost" id="btn-back-setup">←</button>
-    <h2>📋 Siapkan Sesi Absensi</h2>
-  </div>
-  <div class="center-col">
-    <div class="panel">
-      <label class="flab">🏫 Pilih Kelas</label>
-      <div class="chips" id="cls-chips"></div>
-      <p class="hint" id="cls-empty" style="display:none;margin-top:1vmin">Belum ada kelas. Tambahkan siswa dulu di <b>👥 Data Siswa</b>.</p>
-      <button class="btn small b-blue" id="btn-goto-data" style="margin-top:1.4vmin">➕ Ke Data Siswa</button>
-    </div>
-    <div class="panel">
-      <label class="flab">⚙️ Mode Absensi</label>
-      <div class="chips" id="seg-mode"></div>
-      <p class="hint" id="setup-note" style="margin-top:1.4vmin"></p>
-    </div>
-    <button class="btn big b-gold" id="btn-start">🚀 MULAI SESI</button>
-  </div>
-</section>
-
-<!-- ================= SCAN / SESI ================= -->
-<section class="screen" id="scr-scan">
+<!-- ================= MODE ABSENSI (layar utama) ================= -->
+<section class="screen active" id="scr-scan">
   <div class="tabs" id="tabs-scan">
-    <button class="tbtn2" data-go="data">👥 Kelola Data Siswa</button>
-    <button class="tbtn2 on" data-go="absen">📷 Mode Absensi</button>
-    <button class="tbtn2" data-go="recap">📊 Rekap Laporan</button>
+    <button class="tbtn2" data-go="data">✎ Pendaftaran Siswa</button>
+    <button class="tbtn2 on" data-go="absen">🗓 Mode Absensi</button>
+    <button class="tbtn2" data-go="recap">📊 Log Kehadiran</button>
   </div>
+
+  <div class="split">
+    <div class="panel col">
+      <div class="phead">🎥 Kamera</div>
+      <div id="camcard">
+        <video id="cam" autoplay playsinline muted></video>
+        <div id="boxlayer"></div>
+        <div id="scanband"></div>
+        <div id="camhint">📷 Kamera belum aktif</div>
+      </div>
+      <div id="welcome">👋 Siswa tinggal menghadap kamera — absen otomatis!</div>
+      <div class="scanmeta">
+        <div id="scan-title">—</div>
+        <div id="scan-count">0/0 Hadir</div>
+        <div class="prog"><i id="scan-prog"></i></div>
+      </div>
+      <label class="flab">🏫 Kelas</label>
+      <div class="chips" id="cls-chips-s"></div>
+      <p class="hint" id="cls-empty" style="display:none;margin-top:1vmin">Belum ada kelas — buka tab <b>✎ Pendaftaran Siswa</b> dulu.</p>
+      <label class="flab">⚙️ Mode</label>
+      <div class="chips" id="seg-mode"></div>
+      <p class="hint" id="setup-note" style="margin-top:1vmin"></p>
+      <button class="btn big b-teal" id="btn-start">🚀 MULAI SESI</button>
+    </div>
+
+    <div class="panel col">
+      <div class="phead">✅ Absensi Hari Ini <span id="ai-date" class="pdate"></span></div>
+      <div id="scan-list"></div>
+      <div class="scan-actions">
+        <button class="btn b-green" id="btn-all">✅ Semua Hadir</button>
+        <button class="btn b-ghost" id="btn-reset">↺ Reset</button>
+        <button class="btn big b-teal" id="btn-done">📥 Selesai</button>
+      </div>
+      <button class="btn b-blue" id="btn-xls" style="margin-top:1.2vmin">📥 Unduh Excel Rekap Bulanan (Semua Kelas)</button>
+    </div>
+  </div>
+
   <div id="scan-strip"></div>
   <div id="hostbar">
-    <button class="btn b-ghost" id="btn-snd" title="Suara">🔊</button>
-    <button class="btn b-ghost" id="btn-fs" title="Layar penuh">🖼</button>
-    <button class="btn b-ghost" id="btn-home" title="Menu">🏠</button>
-  </div>
-  <div class="scan-top">
-    <div class="panel">
-      <div id="scan-title">—</div>
-      <div id="scan-count">0/0 Hadir</div>
-      <div class="prog"><i id="scan-prog"></i></div>
-    </div>
-  </div>
-  <div class="panel" id="scan-list"></div>
-  <div class="scan-actions">
-    <button class="btn b-green" id="btn-all">✅ Semua Hadir</button>
-    <button class="btn b-ghost" id="btn-reset">↺ Reset</button>
-    <button class="btn big b-gold" id="btn-done">📥 Selesai</button>
+    <button class="hbtn" id="btn-snd" title="Suara">🔊</button>
+    <button class="hbtn on" id="btn-tts" title="Sebut nama siswa">🗣</button>
+    <button class="hbtn" id="btn-fs" title="Layar penuh">🖼</button>
+    <button class="hbtn" id="btn-help" title="Cara pakai">❓</button>
   </div>
 </section>
 
-<!-- ================= DATA SISWA ================= -->
+<!-- ================= PENDAFTARAN SISWA ================= -->
 <section class="screen" id="scr-data">
   <div class="tabs" id="tabs-data">
-    <button class="tbtn2 on" data-go="data">👥 Kelola Data Siswa</button>
-    <button class="tbtn2" data-go="absen">📷 Mode Absensi</button>
-    <button class="tbtn2" data-go="recap">📊 Rekap Laporan</button>
-  </div>
-  <div class="topbar">
-    <button class="btn small b-ghost" id="btn-back-data">←</button>
-    <h2>👥 Data Siswa</h2>
+    <button class="tbtn2 on" data-go="data">✎ Pendaftaran Siswa</button>
+    <button class="tbtn2" data-go="absen">🗓 Mode Absensi</button>
+    <button class="tbtn2" data-go="recap">📊 Log Kehadiran</button>
   </div>
   <div class="center-col">
     <div class="panel">
-      <label class="flab">🏫 Kelas</label>
+      <div class="phead">🏫 Kelas &amp; Rombel</div>
       <div class="chips" id="cls-chips-d"></div>
       <div style="display:flex;gap:1.2vmin;margin-top:1.6vmin;flex-wrap:wrap">
         <button class="btn small b-blue" id="btn-add-cls">➕ Kelas Baru</button>
@@ -88,24 +75,24 @@
       </div>
       <p class="hint" id="data-note" style="margin-top:1.4vmin"></p>
     </div>
-    <div id="stu-list"></div>
-    <button class="btn big b-gold" id="btn-add-stu">➕ Tambah Siswa</button>
+    <div class="panel">
+      <div class="phead">👥 Daftar Siswa</div>
+      <div id="stu-list"></div>
+      <button class="btn big b-teal" id="btn-add-stu" style="margin-top:1.6vmin">➕ Tambah Siswa</button>
+    </div>
   </div>
 </section>
 
-<!-- ================= REKAP ================= -->
+<!-- ================= LOG KEHADIRAN ================= -->
 <section class="screen" id="scr-recap">
   <div class="tabs" id="tabs-recap">
-    <button class="tbtn2" data-go="data">👥 Kelola Data Siswa</button>
-    <button class="tbtn2" data-go="absen">📷 Mode Absensi</button>
-    <button class="tbtn2 on" data-go="recap">📊 Rekap Laporan</button>
-  </div>
-  <div class="topbar">
-    <button class="btn small b-ghost" id="btn-back-recap">←</button>
-    <h2>📅 Rekap Absensi</h2>
+    <button class="tbtn2" data-go="data">✎ Pendaftaran Siswa</button>
+    <button class="tbtn2" data-go="absen">🗓 Mode Absensi</button>
+    <button class="tbtn2 on" data-go="recap">📊 Log Kehadiran</button>
   </div>
   <div class="center-col">
     <div class="panel">
+      <div class="phead">📊 Log Kehadiran</div>
       <label class="flab">🏫 Kelas</label>
       <div class="chips" id="cls-chips-r"></div>
       <label class="flab">🗓 Tanggal</label>
@@ -114,11 +101,20 @@
     </div>
     <div class="panel" id="rc-wrap">
       <div class="rc-sum" id="rc-sum"></div>
+      <div id="rc-legend" class="legend"></div>
       <div id="rc-list"></div>
       <div style="display:flex;gap:1.2vmin;margin-top:1.6vmin;flex-wrap:wrap">
         <button class="btn small b-green" id="btn-csv">📥 Unduh CSV</button>
         <button class="btn small b-ghost" id="btn-csv-view">👁 Lihat CSV</button>
         <button class="btn small b-red" id="btn-del-date">🗑 Hapus Tanggal Ini</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="phead">📅 Unduh Daftar Hadir Bulanan (seperti Excel)</div>
+      <p class="hint">Satu berkas Excel berisi <b>satu lembar per kelas</b> — baris siswa, kolom tanggal (✓/S/I/A), kolom JUMLAH, cocok ditempel ke buku admin.</p>
+      <div style="display:flex;gap:1.2vmin;margin-top:1.4vmin;flex-wrap:wrap;align-items:center">
+        <input type="month" id="xls-month" class="inp" style="max-width:30vmin">
+        <button class="btn b-blue" id="btn-xls2">📥 Unduh Excel (Semua Kelas)</button>
       </div>
     </div>
   </div>

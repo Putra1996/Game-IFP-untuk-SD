@@ -1,7 +1,7 @@
 'use strict';
 /* ================= STATE ================= */
-const CFG=Object.assign({cls:null,mode:'kamera',rcls:null,rdate:null},getCfg());
-function persistCfg(){saveCfg({cls:CFG.cls,mode:CFG.mode,rcls:CFG.rcls,rdate:CFG.rdate});}
+const CFG=Object.assign({cls:null,mode:'kamera',rcls:null,rdate:null,tts:true},getCfg());
+function persistCfg(){saveCfg({cls:CFG.cls,mode:CFG.mode,rcls:CFG.rcls,rdate:CFG.rdate,tts:CFG.tts});}
 let SES=null;               /* sesi scan aktif */
 const AW={ai:null,pend:null,editId:null,stream:null,tmr:null,busy:false};
 const FACEAPI_URL='https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js';
@@ -56,10 +56,10 @@ function renderClsChips(elId,active,onPick){
   });
 }
 
-/* ================= LAYAR SETUP SESI ================= */
-function renderSetup(){
+/* ================= PANEL MODE ABSENSI ================= */
+function renderScanPanel(){
   if(!CFG.cls){const c0=getClasses()[0]||null;if(c0){CFG.cls=c0;persistCfg();}}
-  renderClsChips('#cls-chips',CFG.cls,c=>{CFG.cls=c;persistCfg();renderSetup();});
+  renderClsChips('#cls-chips-s',CFG.cls,c=>{CFG.cls=c;persistCfg();renderScanPanel();});
   const n=getStudents().length;
   $('#cls-empty').style.display=n?'none':'block';
   const seg=$('#seg-mode');seg.innerHTML='';
@@ -67,23 +67,33 @@ function renderSetup(){
     const b=document.createElement('button');
     b.type='button';b.className='chip'+(CFG.mode===o.v?' on':'');
     b.textContent=o.l;
-    b.onclick=()=>{Snd.click();CFG.mode=o.v;persistCfg();renderSetup();};
+    b.onclick=()=>{Snd.click();CFG.mode=o.v;persistCfg();renderScanPanel();};
     seg.appendChild(b);
   });
   const note=$('#setup-note');
   if(CFG.cls){
     const st=stuOf(getStudents(),CFG.cls);
     const withFace=st.filter(s=>s.desc&&s.desc.length).length;
-    note.textContent=CFG.cls+': '+st.length+' siswa terdaftar • '+withFace+' dengan data wajah 📷'+
-      (st.length&&withFace===0?' — akan memakai panel manual':'');
+    note.textContent=CFG.cls+': '+st.length+' siswa terdaftar • '+withFace+' dengan data wajah 📷'+(SES&&SES.running?' • SESI BERJALAN':'');
   }else note.textContent='Pilih kelas untuk memulai.';
+  $('#ai-date').textContent='• '+fmtDate(todayISO());
+  $('#scan-title').textContent=SES?('📋 '+SES.cls+' • '+fmtDate(SES.iso)):(CFG.cls?('📋 '+CFG.cls+' • siap mulai'):'—');
   const go=$('#btn-start');
-  go.disabled=!CFG.cls||!n;
+  go.disabled=!CFG.cls||!n||(SES&&SES.running);
+  go.textContent=(SES&&SES.running)?'▶️ SESI BERJALAN…':'🚀 MULAI SESI';
 }
-function openSetup(){
-  renderSetup();
-  show('scr-setup');
+function openSetup(){renderScanPanel();show('scr-scan');}
+/* TTS: sebut nama siswa setelah tercatat */
+function speakName(nm){
+  if(!CFG.tts)return;
+  try{
+    if(typeof speechSynthesis==='undefined')return;
+    const u=new SpeechSynthesisUtterance(nm+' hadir');
+    u.lang='id-ID';u.rate=1;
+    speechSynthesis.cancel();speechSynthesis.speak(u);
+  }catch(e){}
 }
+
 
 /* ================= LAYAR DATA SISWA ================= */
 function renderData(){
@@ -252,9 +262,13 @@ function startSession(){
   if(!st.length){toast('⚠️ Kelas '+CFG.cls+' belum punya siswa!');openData();return;}
   SES={cls:CFG.cls,iso:todayISO(),mode:CFG.mode,marks:{},running:true,notified:{},faces:[]};
   $('#scan-title').textContent='📋 '+SES.cls+' • '+fmtDate(SES.iso);
+  $('#ai-date').textContent='• '+fmtDate(SES.iso);
+  $('#welcome').textContent='👋 Ayo antre menghadap kamera!';
+  const sb=$('#scanband');if(sb)sb.classList.toggle('on',SES.mode==='kamera');
   renderScanList(true);
   updateCount();
   show('scr-scan');
+  renderScanPanel();
   Snd.go();
   if(SES.mode==='kamera')enableCam();
   else toast('👆 Mode manual: tap huruf status pada tiap siswa.');
@@ -265,6 +279,8 @@ function renderScanList(rebuild){
     list.innerHTML='';
     stuOf(getStudents(),SES.cls).forEach(s=>{
       const row=document.createElement('div');row.className='row';row.dataset.sid=s.id;
+      const stok=document.createElement('div');stok.className='stok';stok.textContent='•';
+      row.appendChild(stok);
       row.appendChild(avEl(s));
       const nm=document.createElement('div');nm.className='nm';nm.textContent=s.nm;
       row.appendChild(nm);
@@ -276,12 +292,18 @@ function renderScanList(rebuild){
         ms.appendChild(b);
       });
       row.appendChild(ms);
+      const tm=document.createElement('div');tm.className='tm';tm.textContent='-';
+      row.appendChild(tm);
       list.appendChild(row);
     });
   }
   /* update badge secara in-place (pelajaran Family 100: jangan rebuild DOM) */
   $$('#scan-list .row').forEach(row=>{
     const m=SES.marks[row.dataset.sid];
+    const stok=row.querySelector('.stok');
+    if(stok){stok.className='stok'+(m?(' s'+m.s):'');stok.textContent=m?m.s:'•';}
+    const tm=row.querySelector('.tm');
+    if(tm)tm.textContent=m?fmtClock(m.t):'-';
     row.querySelectorAll('.mini').forEach(b=>{
       b.classList.remove('on-H','on-I','on-S','on-A');
       if(m&&b.dataset.k===m.s)b.classList.add('on-'+m.s);
@@ -318,13 +340,17 @@ function autoMark(sid){
   mark(sid,'H',false);
   Snd.ok();
   const s=getStudents().find(x=>x.id===sid);
+  const nm=s?s.nm:'Siswa';
   const strip=$('#scan-strip');
   if(strip){
-    strip.textContent='✔ '+nameOf(sid)+' — HADIR!';
+    strip.textContent='Terdeteksi: '+nm.toUpperCase()+' ('+SES.cls+') — HADIR!';
     strip.classList.add('show');
     clearTimeout(strip._t);
     strip._t=setTimeout(()=>strip.classList.remove('show'),2600);
   }
+  const wel=$('#welcome');
+  if(wel)wel.textContent='👋 Selamat Datang, '+nm+'!';
+  speakName(nm);
 }
 function nameOf(sid){const s=getStudents().find(x=>x.id===sid);return s?s.nm:'Siswa';}
 function markAll(){
@@ -368,6 +394,8 @@ function doFinish(autoAlpa){
   }
   SES.running=false; /* dimatikan SETELAH penandaan selesai */
   stopCam();
+  const wel=$('#welcome');if(wel)wel.textContent='👋 Siswa tinggal menghadap kamera — absen otomatis!';
+  renderScanPanel();
   const total=stuOf(getStudents(),SES.cls).length;
   const h=Object.values(SES.marks).filter(m=>m.s==='H').length;
   const a=Object.values(SES.marks).filter(m=>m.s==='A').length;
@@ -400,7 +428,9 @@ function drawBoxes(faces){
   if(!faces||!faces.length)return;
   const v=$('#cam');
   const vw=(v&&v.videoWidth)||1280,vh=(v&&v.videoHeight)||720;
-  const W=innerWidth,H=innerHeight;
+  const card=$('#camcard')||v;
+  const cr=card.getBoundingClientRect();
+  const W=cr.width||innerWidth,H=cr.height||innerHeight;
   const sc=Math.max(W/vw,H/vh);
   const ox=(W-vw*sc)/2,oy=(H-vh*sc)/2;
   const cands=SES?stuOf(getStudents(),SES.cls).filter(s=>s.desc&&s.desc.length===128):[];
@@ -488,6 +518,7 @@ function stopCam(){
   camTagHide();
   const layer=$('#boxlayer');
   if(layer)layer.innerHTML='';
+  const sb=$('#scanband');if(sb)sb.classList.remove('on');
 }
 function startDetectLoop(){
   if(AW.tmr)clearInterval(AW.tmr);
@@ -516,6 +547,7 @@ function startDetectLoop(){
 /* ================= REKAP ================= */
 function openRecap(){
   if(!CFG.rcls){const cls=getClasses();CFG.rcls=cls[0]||null;}
+  const xm=$('#xls-month');if(xm&&!xm.value)xm.value=todayISO().slice(0,7);
   renderRecap();
   show('scr-recap');
 }
@@ -608,6 +640,95 @@ function confirmDelDate(){
     }},{t:'Batal',cls:'b-ghost'}]);
 }
 
+/* ================= EXCEL DAFTAR HADIR BULANAN (semua kelas) ================= */
+function xmlEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function monthLabel(iso){const b=['JANUARI','FEBRUARI','MARET','APRIL','MEI','JUNI','JULI','AGUSTUS','SEPTEMBER','OKTOBER','NOVEMBER','DESEMBER'];return b[(+iso.slice(5,7))-1]+' '+iso.slice(0,4);}
+function daysInMonth(mo){return new Date(+mo.slice(0,4),+mo.slice(5,7),0).getDate();}
+function dowChar(isoM){return ['M','S','S','R','K','J','S'][new Date(isoM+'T00:00:00').getDay()];}
+function sheetName(cl){return String(cl).replace(/[:\\\/\?\*\[\]]/g,'-').slice(0,31)||'KELAS';}
+function buildXLS(mo){
+  if(!/^\d{4}-\d{2}$/.test(mo||''))mo=todayISO().slice(0,7);
+  const nD=daysInMonth(mo);
+  const isoD=n=>mo+'-'+String(n).padStart(2,'0');
+  const rekap=getRekap();
+  const classes=getClasses().filter(c=>stuOf(getStudents(),c).length);
+  let sheets='';
+  classes.forEach(cl=>{
+    const st=stuOf(getStudents(),cl);
+    let head1='<Row><Cell ss:StyleID="sHead"><Data ss:Type="String">NO</Data></Cell><Cell ss:StyleID="sHead"><Data ss:Type="String">NAMA</Data></Cell>';
+    let head2='<Row><Cell ss:StyleID="sHead"><Data ss:Type="String"></Data></Cell><Cell ss:StyleID="sHead"><Data ss:Type="String"></Data></Cell>';
+    for(let n=1;n<=nD;n++){
+      const h=dowChar(isoD(n));
+      const st2=(h==='S'&&new Date(isoD(n)+'T00:00:00').getDay()===1)?'sHeadMon':'sHead';
+      head1+='<Cell ss:StyleID="'+st2+'"><Data ss:Type="String">'+h+'</Data></Cell>';
+      head2+='<Cell ss:StyleID="'+st2+'"><Data ss:Type="Number">'+n+'</Data></Cell>';
+    }
+    head1+='<Cell ss:StyleID="sHead"><Data ss:Type="String">JML H</Data></Cell><Cell ss:StyleID="sHead"><Data ss:Type="String">JML S</Data></Cell><Cell ss:StyleID="sHead"><Data ss:Type="String">JML I</Data></Cell><Cell ss:StyleID="sHead"><Data ss:Type="String">JML A</Data></Cell></Row>';
+    head2+='</Row>';
+    const rows=st.map((s,i)=>{
+      const cnt={H:0,S:0,I:0,A:0};
+      let cells='';
+      for(let n=1;n<=nD;n++){
+        const m=((rekap[cl]||{})[isoD(n)]||{})[s.id];
+        if(m)cnt[m.s]++;
+        const v=m?(m.s==='H'?'\u2713':m.s):'';
+        const mon=(dowChar(isoD(n))==='S'&&new Date(isoD(n)+'T00:00:00').getDay()===1);
+        cells+='<Cell ss:StyleID="'+(mon?'cMon':'cCell')+'"><Data ss:Type="String">'+v+'</Data></Cell>';
+      }
+      return '<Row><Cell ss:StyleID="cCell"><Data ss:Type="Number">'+(i+1)+'</Data></Cell>'+
+        '<Cell ss:StyleID="cName"><Data ss:Type="String">'+xmlEsc(s.nm)+'</Data></Cell>'+cells+
+        '<Cell ss:StyleID="cTot"><Data ss:Type="Number">'+cnt.H+'</Data></Cell>'+
+        '<Cell ss:StyleID="cTot"><Data ss:Type="Number">'+cnt.S+'</Data></Cell>'+
+        '<Cell ss:StyleID="cTot"><Data ss:Type="Number">'+cnt.I+'</Data></Cell>'+
+        '<Cell ss:StyleID="cTot"><Data ss:Type="Number">'+cnt.A+'</Data></Cell></Row>';
+    }).join('');
+    let foot='<Row><Cell ss:StyleID="sFoot"><Data ss:Type="String">BULAN EFEKTIF</Data></Cell><Cell ss:StyleID="sFoot"><Data ss:Type="String">Hadir/hari:</Data></Cell>';
+    for(let n=1;n<=nD;n++){
+      let h=0;const day=(rekap[cl]||{})[isoD(n)]||{};
+      Object.values(day).forEach(m=>{if(m.s==='H')h++;});
+      foot+='<Cell ss:StyleID="cCell"><Data ss:Type="Number">'+h+'</Data></Cell>';
+    }
+    foot+='<Cell ss:StyleID="sFoot"><Data ss:Type="String"></Data></Cell><Cell ss:StyleID="sFoot"><Data ss:Type="String"></Data></Cell><Cell ss:StyleID="sFoot"><Data ss:Type="String"></Data></Cell><Cell ss:StyleID="sFoot"><Data ss:Type="String"></Data></Cell></Row>';
+    sheets+='<Worksheet ss:Name="'+xmlEsc(sheetName(cl))+'"><Table>'+
+      '<Row><Cell ss:StyleID="sTitle"><Data ss:Type="String">DAFTAR HADIR SISWA KELAS '+xmlEsc(String(cl).toUpperCase())+'</Data></Cell></Row>'+
+      '<Row><Cell ss:StyleID="sSub"><Data ss:Type="String">BULAN: '+monthLabel(mo)+'</Data></Cell></Row>'+
+      '<Row></Row>'+head1+head2+rows+foot+'</Table></Worksheet>';
+  });
+  if(!sheets)sheets='<Worksheet ss:Name="KOSONG"><Table><Row><Cell><Data ss:Type="String">Belum ada kelas/siswa terdaftar</Data></Cell></Row></Table></Worksheet>';
+  return '<?xml version="1.0"?>\n'+
+    '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'+
+    '<Styles>'+
+    '<Style ss:ID="sTitle"><Font ss:Bold="1" ss:Size="13" ss:FontName="Times New Roman"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style>'+
+    '<Style ss:ID="sSub"><Font ss:Bold="1" ss:Size="11" ss:FontName="Times New Roman"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style>'+
+    '<Style ss:ID="sHead"><Font ss:Bold="1" ss:Size="9"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Interior ss:Color="#EAEAEA" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style>'+
+    '<Style ss:ID="sHeadMon"><Font ss:Bold="1" ss:Size="9"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Interior ss:Color="#EAEAEA" ss:Pattern="Solid"/><Borders><Border ss:Position="Left" ss:Color="#FF0000" ss:LineStyle="Continuous" ss:Weight="2"/><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style>'+
+    '<Style ss:ID="cCell"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style>'+
+    '<Style ss:ID="cMon"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Left" ss:Color="#FF0000" ss:LineStyle="Continuous" ss:Weight="2"/><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style>'+
+    '<Style ss:ID="cName"><Alignment ss:Horizontal="Left" ss:Vertical="Center"/><Font ss:Size="9"/><Borders><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style>'+
+    '<Style ss:ID="cTot"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Font ss:Bold="1" ss:Color="#C00000"/><Borders><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style>'+
+    '<Style ss:ID="sFoot"><Font ss:Bold="1" ss:Size="9"/></Style>'+
+    '</Styles>'+sheets+'</Workbook>';
+}
+function downloadXLS(mo){
+  const xml=buildXLS(mo);
+  const fname='daftar_hadir_'+(mo||todayISO().slice(0,7))+'.xls';
+  try{
+    const blob=new Blob([xml],{type:'application/vnd.ms-excel'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download=fname;
+    document.body.appendChild(a);a.click();a.remove();
+    toast('📥 '+fname+' diunduh (1 lembar per kelas).');
+  }catch(e){
+    try{
+      const a=document.createElement('a');
+      a.href='data:application/vnd.ms-excel;charset=utf-8,'+encodeURIComponent(xml);
+      a.download=fname;
+      document.body.appendChild(a);a.click();a.remove();
+      toast('📥 '+fname+' diunduh.');
+    }catch(e2){toast('⚠️ Unduhan tidak didukung di browser ini.');}
+  }
+}
+
 /* ================= BANTUAN ================= */
 function showHelp(){
   showModal(
@@ -635,34 +756,32 @@ function exitToHome(){
   if(SES){SES.running=false;}
   stopCam();
   closeModal();
-  show('scr-home');
+  openSetup();
 }
 function bindButtons(){
-  $('#btn-scan').onclick=()=>{Snd.click();openSetup();};
-  $('#btn-data').onclick=()=>{Snd.click();openData();};
-  $('#btn-recap').onclick=()=>{Snd.click();openRecap();};
-  $('#btn-help').onclick=()=>{Snd.click();showHelp();};
-  $('#btn-back-setup').onclick=()=>{Snd.click();show('scr-home');};
-  $('#btn-goto-data').onclick=()=>{Snd.click();openData();};
   $('#btn-start').onclick=()=>{Snd.click();startSession();};
-  $('#btn-back-data').onclick=()=>{Snd.click();show('scr-home');};
   $('#btn-add-cls').onclick=()=>{Snd.click();openClsModal();};
   $('#btn-del-cls').onclick=()=>{Snd.click();confirmDelCls();};
   $('#btn-add-stu').onclick=()=>{Snd.click();openStuModal(null);};
-  $('#btn-back-recap').onclick=()=>{Snd.click();show('scr-home');};
   $('#btn-csv').onclick=()=>{Snd.click();downloadCsv();};
   $('#btn-csv-view').onclick=()=>{Snd.click();showCsvModal();};
   $('#btn-del-date').onclick=()=>{Snd.click();confirmDelDate();};
+  const dl=()=>{Snd.click();downloadXLS($('#xls-month').value||todayISO().slice(0,7));};
+  $('#btn-xls').onclick=dl;
+  $('#btn-xls2').onclick=dl;
   $('#btn-all').onclick=()=>{Snd.click();markAll();};
   $('#btn-reset').onclick=()=>{Snd.click();resetSession();};
   $('#btn-done').onclick=()=>{Snd.click();finishSession();};
   $('#btn-fs').onclick=toggleFS;
-  $('#btn-snd').onclick=()=>{Snd.on=!Snd.on;$('#btn-snd').textContent=Snd.on?'🔊':'🔇';Snd.click();};
-  $('#btn-home').onclick=()=>{Snd.click();
-    showModal('<h3>🏠 Kembali ke Menu?</h3><p>Sesi absensi akan dihentikan (catatan yang sudah masuk tetap tersimpan).</p>',
-      [{t:'🏠 Ya, ke Menu',cls:'b-ghost',f:exitToHome},
-       {t:'📷 Lanjut Absensi',cls:'b-gold',f:closeModal}]);
-  };
+  $('#btn-help').onclick=()=>{Snd.click();showHelp();};
+  $('#btn-snd').onclick=()=>{Snd.on=!Snd.on;$('#btn-snd').textContent=Snd.on?'🔊':'🔇';$('#btn-snd').classList.toggle('on',!Snd.on===false);Snd.click();};
+  $('#btn-tts').onclick=()=>{Snd.click();CFG.tts=!CFG.tts;persistCfg();
+    $('#btn-tts').classList.toggle('on',CFG.tts);
+    toast(CFG.tts?'🗣 Nama siswa akan disebut saat absen.':'🔇 Sebut nama dimatikan.');
+    if(CFG.tts)speakName('Tes suara');};
+}
+function syncTabOn(go){
+  $$('.tabs').forEach(t=>{t.querySelectorAll('.tbtn2').forEach(b=>b.classList.toggle('on',b.dataset.go===go));});
 }
 function wireTabs(){
   $$('.tabs .tbtn2').forEach(b=>{
@@ -675,6 +794,7 @@ function wireTabs(){
         if(SES&&SES.running){show('scr-scan');}
         else{openSetup();}
       }
+      syncTabOn(go);
     };
   });
 }
@@ -683,7 +803,9 @@ function boot(){
   bindButtons();
   wireTabs();
   requestAnimationFrame(fxLoop);
-  show('scr-home');
+  const xm=$('#xls-month');if(xm)xm.value=todayISO().slice(0,7);
+  $('#btn-tts').classList.toggle('on',!!CFG.tts);
+  openSetup();
 }
 document.addEventListener('DOMContentLoaded',boot);
 
@@ -706,7 +828,7 @@ function fxLoop(){
 }
 window.__AW={
   onFaces,euclid,bestMatch,buildCSV,setDesc,addStudent,mark,startSession,openStuModal,
-  saveStuModal,delStudent,renderData,renderRecap,openRecap,openData,openSetup,renderSetup,
-  confirmDelDate,downloadCsv,showCsvModal,finishSession,markAll,resetSession,exitToHome,
+  saveStuModal,delStudent,renderData,renderRecap,openRecap,openData,openSetup ,renderScanPanel,
+  confirmDelDate,downloadCsv,showCsvModal,finishSession,markAll,resetSession,exitToHome,speakName,buildXLS,downloadXLS,syncTabOn,downloadXLS:downloadXLS,
   getSES:()=>SES,CFG,STATUS,stName,todayISO,fmtDate,fmtClock,DESC_TH,Snd,FX,clsList,stuOf,pctOf,AW,getClasses,registerClass,loadAI,getStudents,getRekap,setDesc,addStudent,saveStudents,saveRekap,doFinish,wireTabs,autoMark,renderData,openSetup
 };

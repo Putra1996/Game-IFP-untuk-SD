@@ -198,3 +198,40 @@ sentuh hijau/merah, dwell sintetis, timeout otomatis, 25 soal → hasil, Main La
 (3) hostbar menimpa chip "SOAL 1/25"; (4) transisi wash 0,25 dtk menyebabkan screenshot/eye-check
 momen hijau terlewat (dipercepat 0,12 dtk + pembersihan kelas per soal).
 Total kartu aplikasi kini: **BS 54** → grand total paket **618 asersi**.
+
+---
+
+# REVISI UI v3/v2.1 — SESAI VIDEO "MBA LULU" (30-09-2026)
+
+## 📷 Absensi Wajah v3.0 — antarmuka & alur baru
+Berdasarkan video balasan WhatsApp (mba lulu): dibangun ulang menjadi **tema terang** dgn
+header tetap "📘 Absensi Wajah Cerdas — Sistem presensi otomatis berbasis pengenalan wajah".
+Tab berlabel: **✎ Pendaftaran Siswa • 🗓 Mode Absensi • 📊 Log Kehadiran**. Mode Absensi =
+dua panel berdampingan: **🎥 Kamera** (kartu kamera + garis pindai animasi + sambutan
+"👋 Selamat Datang, NAMA!") dan **✅ Absensi Hari Ini** (daftar siswa ber-token status H/I/S/A
++ jam, tombol Semua Hadir/Reset/Selesai). Wajah dikenali → strip hijau di bawah tab:
+**"Terdeteksi: NAMA (KELAS) — HADIR!"** dan **nama DISEBUTKAN SUARA** (Web Speech id-ID,
+chip 🗣 on/off). Baru: **📥 Unduh Excel Rekap Bulanan (SEMUA kelas sekaligus)** — SpreadsheetML
+.xls 1 lembar per kelas: baris siswa, kolom tanggal 1..31 dgn ✓/S/I/A, huruf hari,
+garis pemisah minggu merah, kolom JML H/S/I/A, baris "BULAN EFEKTIF" — mengikuti pola
+"DAFTAR HADIR SISWA KELAS VII-A" di video.
+
+Audit: jsdom **26/26** (landing+split+tab+TTS-guard, strip Terdeteksi, welcome, token+jam,
+finalisasi alpa, XML 2 kelas/30 hari/garis minggu, unduh fallback, sinkronisasi tab) +
+Chrome E2E **12/12** (fake cam + face-api CDN nyata: AI aktif, scanband, strip, welcome,
+Log Kehadiran, Excel, MULAI lagi; 0 page error; screenshot 4 dibandingkan dgn video).
+
+## 🅰️ Kuis A/B v2.1 — animasi gestur & jawaban turun
+- **Kursor 👆 tangan mengambang** mengikuti telapak (di atas video kelas) + **jejak memudar**
+  + **cincin denyut** warna zona — sesuai "gerakan tangan di layar".
+- **Jawaban A/B meluncur turun** dari atas layar ke kotak sudutnya (🅰️ kiri, 🅱️ kanan);
+  kecepatan bisa diatur di setup: **🐢 Santai 4 dtk / 🚶 Sedang 2,4 dtk / 🐇 Cepat 1,2 dtk** —
+  siswa mengikuti dengan tangan → kelas aktif bergerak.
+- **Efek kena**: cincin putih mekar di zona saat target tercapai (sentuh/gestur).
+
+Audit: jsdom tambahan **9/9** (FALLS, posisi awal & transisi, ganti kecepatan, ring muncul/
+dibuang, answer 'hand') + regresi penuh **16/16** + Chrome E2E **13/13** (kursor tangan
+ter-render, dwell + ring, jawaban turun 2400 ms, gameplay hijau/merah/timeout/hasil; FPS UI 61;
+0 page error; screenshot dibandingkan dgn video).
+
+Total kartu: **AW 163 · BS 79** → grand total paket **686 asersi**.

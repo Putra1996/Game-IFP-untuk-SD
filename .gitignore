@@ -9,3 +9,4 @@ Thumbs.db
 .local/
 .config/
 .sudo_as_admin_successful
+audit/node_modules

@@ -282,3 +282,16 @@ bukan kolom isian; ✏️ Soal Guru membaca bank yang disimpan guru (kosong → 
 **Hasil putaran: 38/38 asersi LULUS.** Screenshot `/tmp/shots-gbp/` (setup & game) direview
 visual: pil berlabel jelas (emas = terpilih), skor dua tim, timer, gelembung ring kuning/biru.
 Kumulatif GBP: 47 + 38 = **85 asersi**. Grand total paket: 686 + 95 + 38 = **819 asersi**.
+
+---
+
+# DEPLOYMENT: BUILD GITHUB PAGES GAGAL KARENA SYMLINK — DIPERBAIKI (01-10-2026)
+
+Gejala: situs live tak kunjung memuat commit terbaru ("Last deployed 8 hours ago"). Diagnosis via
+Pages Build API: build `c1ea372` (ronde 3) **errored — "Page build failed"** dan build `34b7933`
+macet "building". Akar: commit ronde 3 ikut menyimpan **symlink `audit/node_modules`** (dibuat
+untuk menjalankan suite jsdom) → GitHub Pages menolak symlink yang keluar dari repo.
+**Fix (`34e1162`):** symlink dihapus dari index git + `.gitignore` (salinan lokal tetap ada; 
+`run-all.sh` membuat ulang symlink secara otomatis). Build ulang **built** dan terverifikasi live:
+GBP menyaji `{value:'campur',label:'🎲 Campur'}` (fix pil v1.1) dan absensi-wajah menyaji media
+query mode HP `max-width:540px` (fix ronde 3 yang sebelumnya juga belum ter-deploy).

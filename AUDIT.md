@@ -254,3 +254,31 @@ panel Mode Absensi absensi tergencet berdampingan di layar sempit (kartu kamera 
 
 Deployment GitHub Pages terverifikasi hidup: benar-salah/absensi-wajah/family-100 → HTTP 200,
 versi terkini (v2.1: gerbang "Kuis Interaktif" + kecepatan jawaban turun) sudah online.
+
+---
+
+# AUDIT GESTURE BATTLE PRO — BUG PIL SETUP + FIX (01-10-2026)
+
+**Laporan pengguna:** di layar Persiapan Duel, pil 📚 Kategori Soal / 🔢 Jumlah Soal / ⏱ Detik per
+Soal / 🎛 Mode Input tampil kosong dan tidak bisa dipilih.
+
+**Akar bug:** `renderSegs()` memanggil `seg()` dengan `{v,l}`, padahal `seg()` membaca `o.value` /
+`o.label` → pil dirender tanpa teks, tanpa handler klik, dan klik menulis `cfg=undefined`.
+Hanya GBP yang terkena (4 app lain terverifikasi memakai `{value,label}`). **Fix:** 4 panggilan
+diganti `{value,label}` → **v1.1**. Kategori: 🎲 Campur/📚 Umum/🔢 Matematika/✏️ Soal Guru ·
+5/10/15 soal · 15/20/30 dtk · 🤖 Kamera AI/👆 Sentuh. Pil = tombol pilihan (yang emas = terpilih),
+bukan kolom isian; ✏️ Soal Guru membaca bank yang disimpan guru (kosong → MULAI ditolak + toast).
+
+**Suite baru (masuk `audit/` permanen + `run-all.sh`):**
+- `gbp.js` (jsdom) **22/22** — 10 asersi pil setup (label, default, klik→cfg, persist LS);
+  gameplay duel: pop benar→skor, reveal→ronde baru, pop salah→tim beku, selesai→hasil, main lagi;
+  soal guru: kosong ditolak+toast, terisi→soal tampil & opsi benar; mode solo.
+- `e2e-gbp.js` (Chrome) **11/11** — klik pil persis skenario pengguna (label tampil & terpilih),
+  10/20/kamera tercatat di cfg, kamera fake "🤖 AI aktif", chip "Soal 1 / 10", pop pointerdown →
+  skor naik, 10 ronde → layar hasil, main lagi → setup, FPS mode sentuh 61, 0 page error.
+- `mobile.js` +5 aserti GBP (portrait 390×844): pil berlabel, muat dalam layar, klik tercatat,
+  tanpa scroll horizontal, 0 error → **24/24**.
+
+**Hasil putaran: 38/38 asersi LULUS.** Screenshot `/tmp/shots-gbp/` (setup & game) direview
+visual: pil berlabel jelas (emas = terpilih), skor dua tim, timer, gelembung ring kuning/biru.
+Kumulatif GBP: 47 + 38 = **85 asersi**. Grand total paket: 686 + 95 + 38 = **819 asersi**.

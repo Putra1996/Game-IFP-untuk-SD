@@ -1,5 +1,5 @@
 #!/bin/bash
-# AUDIT LENGKAP — Kuis A/B + Absensi + mode HP. Butuh koneksi (Chrome/jsdom diunduh sekali).
+# AUDIT LENGKAP — Kuis A/B + Absensi + Gesture Battle PRO + mode HP. Butuh koneksi (Chrome/jsdom diunduh sekali).
 set -e
 DIR="$(cd "$(dirname "$0")" && pwd)"
 mkdir -p /tmp/smoke && cd /tmp/smoke
@@ -9,5 +9,6 @@ ln -sfn /tmp/smoke/node_modules "$DIR/node_modules"
 node "$DIR/ab-reg.js";  R1=$?
 node "$DIR/ab-add.js";  R2=$?
 node "$DIR/aw3.js";     R3=$?
-node "$DIR/mobile.js";  R4=$?
-echo; echo "=== SELESAI: regresi=$R1 tambahan=$R2 absensi=$R3 mobile=$R4 ==="
+node "$DIR/gbp.js";     R4=$?
+node "$DIR/mobile.js";  R5=$?
+echo; echo "=== SELESAI: regresi=$R1 tambahan=$R2 absensi=$R3 gbp=$R4 mobile=$R5 ==="

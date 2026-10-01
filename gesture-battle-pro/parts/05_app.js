@@ -48,10 +48,10 @@ function openSetup(mode){
   show('scr-setup');
 }
 function renderSegs(){
-  seg($('#seg-cat'),[{v:'campur',l:'🎲 Campur'},{v:'umum',l:'📚 Umum'},{v:'matematika',l:'🔢 Matematika'},{v:'guru',l:'✏️ Soal Guru'}],()=>cfg.category,v=>cfg.category=v);
-  seg($('#seg-rounds'),[{v:5,l:'5 soal'},{v:10,l:'10 soal'},{v:15,l:'15 soal'}],()=>cfg.rounds,v=>cfg.rounds=v);
-  seg($('#seg-time'),[{v:15,l:'15 dtk'},{v:20,l:'20 dtk'},{v:30,l:'30 dtk'}],()=>cfg.time,v=>cfg.time=v);
-  seg($('#seg-input'),[{v:'auto',l:'🤖 Kamera AI'},{v:'touch',l:'👆 Sentuh'}],()=>cfg.input,v=>cfg.input=v);
+  seg($('#seg-cat'),[{value:'campur',label:'🎲 Campur'},{value:'umum',label:'📚 Umum'},{value:'matematika',label:'🔢 Matematika'},{value:'guru',label:'✏️ Soal Guru'}],()=>cfg.category,v=>cfg.category=v);
+  seg($('#seg-rounds'),[{value:5,label:'5 soal'},{value:10,label:'10 soal'},{value:15,label:'15 soal'}],()=>cfg.rounds,v=>cfg.rounds=v);
+  seg($('#seg-time'),[{value:15,label:'15 dtk'},{value:20,label:'20 dtk'},{value:30,label:'30 dtk'}],()=>cfg.time,v=>cfg.time=v);
+  seg($('#seg-input'),[{value:'auto',label:'🤖 Kamera AI'},{value:'touch',label:'👆 Sentuh'}],()=>cfg.input,v=>cfg.input=v);
   const note=$('#setup-note');
   note.textContent=(cfg.mode==='duel'?2:1)+' pemain • ✏️ Soal Guru: '+(GURU_KUIS.length?GURU_KUIS.length+' tersedia':'kosong (pakai matematika)')+' • 🤖 Kamera: 1 tangan per tim';
 }

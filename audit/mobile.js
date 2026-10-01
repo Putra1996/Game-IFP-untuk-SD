@@ -39,7 +39,26 @@ async function noHScroll(page){return page.evaluate(()=>document.documentElement
     T('HP: 0 page error (A/B)',errs.filter(e=>!/favicon|net::ERR|gpu|dbus/.test(e)).length===0,errs.slice(0,2));
     await p.close();
   }
-  /* ---------- ABSENSI di HP ---------- */
+/* ---------- GBP di HP (bug pil setup) ---------- */
+  {
+    const p=await browser.newPage();
+    await p.setViewport({width:390,height:844,isMobile:true,hasTouch:true});
+    const errs=[];p.on('pageerror',e=>errs.push(e.message));
+    await p.goto('file:///home/user/gesture-battle-pro/index.html');
+    await sleep(900);
+    await p.evaluate(()=>{[...document.querySelectorAll('button')].find(b=>/duel/i.test(b.textContent)).click();});
+    await p.waitForSelector('#scr-setup.active',{timeout:3000});
+    await sleep(300);
+    const lbl=await p.$$eval('#seg-cat .chip',els=>els.map(e=>e.textContent));
+    T('HP GBP: pil kategori berlabel',lbl.join('|')==='🎲 Campur|📚 Umum|🔢 Matematika|✏️ Soal Guru',lbl.join('|'));
+    T('HP GBP: semua pil kategori di dalam layar & tertablet',await p.evaluate(()=>[...document.querySelectorAll('#seg-cat .chip')].every(b=>{const r=b.getBoundingClientRect();return r.width>30&&r.right<=innerWidth+2;})));
+    await p.evaluate(()=>{[...document.querySelectorAll('#seg-cat .chip')].find(b=>/Matematika/.test(b.textContent)).click();});
+    T('HP GBP: klik Matematika tercatat',await p.evaluate(()=>window.CFG.category==='matematika'));
+    T('HP GBP: tanpa scroll horizontal',await noHScroll(p));
+    T('HP GBP: 0 page error',errs.length===0,errs.slice(0,2));
+    await p.close();
+  }
+    /* ---------- ABSENSI di HP ---------- */
   {
     const p=await browser.newPage();
     await p.setViewport({width:390,height:844,isMobile:true,hasTouch:true});

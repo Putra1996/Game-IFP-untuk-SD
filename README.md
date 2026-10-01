@@ -10,7 +10,7 @@ kelima aplikasi pembelajaran interaktif untuk papan sentuh (IFP):
 | 3 | 🪑 Kuis Family 100 | `family-100/` | v1.0 | 85/85 |
 | 4 | ⚔️ Clash of Champions | `clash-champions/` | v1.0 | 90/90 |
 | 5 | 📷 Absensi Wajah Cerdas | `absensi-wajah/` | v3.0 | 163/163 |
-| 6 | 🫧 Gesture Battle PRO | `gesture-battle-pro/` | v1.0 | 47/47 |
+| 6 | 🫧 Gesture Battle PRO | `gesture-battle-pro/` | v1.1 | 47/47 +38 (r4) |
 | 7 | 🅰️ Kuis A/B Benar-Salah | `benar-salah/` | v2.1 | 79/79 |
 | | | | **Total** | **686/686** |
 
@@ -68,3 +68,13 @@ tangan → aktif bergerak), efek **cincin kena** saat target tercapai. Audit tam
 jsdom + 13 Chrome E2E = 25** baru di luar regresi (total kartu 79).
 Grand total: **686 asersi**.
 
+
+## Perbaikan Bug + Audit Gesture Battle PRO (01-10-2026)
+Laporan pengguna: pil setup GBP tampil kosong & tak bisa dipilih. Akar: `renderSegs()` mengirim
+`{v,l}` sementara `seg()` membaca `o.value`/`o.label` → pil tanpa label & tanpa aksi klik.
+**Diperbaiki (4 pil) → v1.1.** Audit tambahan: jsdom `audit/gbp.js` **22/22** (pil setup, gameplay
+duel benar/salah/beku, soal guru kosong & terisi, solo), Chrome E2E `audit/e2e-gbp.js` **11/11**
+(klik pil di Chrome, kamera fake "AI aktif", pop pointerdown, 10 ronde → hasil, main lagi, FPS 61,
+0 page error), mode HP `mobile.js` bertambah 5 → **24/24**. Total baru **38/38**; kumulatif GBP
+**47+38 = 85 asersi**. Screenshot setup & permainan terverifikasi visual (pil berlabel jelas,
+skor dua tim, timer, gelembung ring tim).

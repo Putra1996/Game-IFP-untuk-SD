@@ -78,26 +78,29 @@ async function noHScroll(page){return page.evaluate(()=>document.documentElement
     T('HP: 0 page error (Absensi)',errs.filter(e=>!/favicon|net::ERR|gpu|dbus/.test(e)).length===0,errs.slice(0,2));
     await p.close();
   }
-  /* ---------- FAMILY 100 di HP (smoke) ---------- */
+  /* ---------- FAMILY 100 di HP (papan jawaban — bug papan tak tampil) ---------- */
   {
     const p=await browser.newPage();
     await p.setViewport({width:390,height:844,isMobile:true,hasTouch:true});
     const errs=[];p.on('pageerror',e=>errs.push(e.message));
     await p.goto('file:///home/user/family-100/index.html');
-    await sleep(1000);
-    const started=await p.evaluate(()=>{
-      const cand=[...document.querySelectorAll('button')].filter(b=>/mulai|main/i.test(b.textContent)&&b.offsetParent);
-      if(!cand.length)return 'TANPA-TOMBOL';
-      cand[0].click();return 'klik:'+cand[0].textContent.trim().slice(0,20);
-    });
-    await sleep(600);
-    T('HP: Family 100 tombol mulai ditemukan & diklik',/^klik:/.test(started),started);
-    T('HP: Family 100 layar aktif berganti / elemen permainan ada',await p.evaluate(()=>!!document.querySelector('.screen.active')||document.querySelectorAll('button').length>3));
-    T('HP: Family 100 tanpa scroll horizontal',await noHScroll(p));
-    T('HP: Family 100 0 page error',errs.filter(e=>!/favicon|net::ERR|gpu|dbus/.test(e)).length===0,errs.slice(0,2));
+    await sleep(900);
+    T('HP Family: tombol MULAI terlihat',await p.evaluate(()=>{const b=[...document.querySelectorAll('button')].find(x=>/MULAI BERMAIN/.test(x.textContent));const r=b.getBoundingClientRect();return r.width>0&&r.right<=innerWidth+2;}));
+    await p.evaluate(()=>{[...document.querySelectorAll('button')].find(x=>/MULAI BERMAIN/.test(x.textContent)).click();});
+    T('HP Family: setup tanpa scroll horizontal',await noHScroll(p));
+    await p.evaluate(()=>document.getElementById('btn-start').click());
+    await sleep(300);
+    await p.evaluate(()=>{[...document.querySelectorAll('#modal-root.open .modal button')].find(b=>/🟡/.test(b.textContent)).click();});
+    await p.waitForFunction("S.phase==='play'",{timeout:6000});
+    await sleep(300);
+    T('HP Family: PAPAN JAWABAN tampil & bisa diketuk (bug v1.0)',await p.evaluate(()=>{const ts=[...document.querySelectorAll('#board .tile')];return ts.length>=2&&ts.every(t=>{const r=t.getBoundingClientRect();return r.width>60&&r.height>16&&getComputedStyle(t).display!=='none'&&r.right<=innerWidth+2;});}));
+    T('HP Family: ketuk petak → terbuka + POT naik',await p.evaluate(()=>new Promise(res=>{const t=document.querySelector('#board .tile');const r=t.getBoundingClientRect();t.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,clientX:r.left+r.width/2,clientY:r.top+r.height/2}));setTimeout(()=>res(t.classList.contains('revealed')&&window.S.pot>0),400);})));
+    T('HP Family: STRIKE & tombol host terlihat penuh',await p.evaluate(()=>{const b=document.getElementById('btn-strike');const r=b.getBoundingClientRect();return r.width>80&&r.right<=innerWidth+2;}));
+    T('HP Family: tanpa scroll horizontal (game)',await noHScroll(p));
+    T('HP Family: 0 page error',errs.filter(e=>!/favicon|net::ERR|gpu|dbus/.test(e)).length===0,errs.slice(0,2));
     await p.close();
   }
-  await browser.close();
+    await browser.close();
   console.log('\nAUDIT MODE HP: '+PASS+' LULUS, '+FAIL+' GAGAL');
   process.exit(FAIL?1:0);
 })().catch(e=>{console.error('FATAL:',e);process.exit(1);});

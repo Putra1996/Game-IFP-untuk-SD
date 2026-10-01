@@ -52,3 +52,11 @@ Makanan favorit siswa? | Mie instan:40 | Ayam goreng:30 | Bakso:20 | Sate:10
 ---
 
 Dibuat untuk kelas yang seru — "Survei berkata…" 🎯
+
+---
+
+## 🩹 v1.1 (01-10-2026) — Perbaikan Papan Jawaban
+Bug: papan jawaban tidak tampil di layar permainan (petak tertutup memakai kelas `hidden` yang
+bertabrakan dengan utility global `.hidden{display:none!important}`), dan papan juara di layar
+hasil ikut menimpa papan permainan karena sama-sama memakai id `board`. Fix: kelas petak → `down`,
+papan juara → `#board-res`. Audit tambahan: jsdom 22 + Chrome E2E 10 + mode HP 3 = **35/35**.

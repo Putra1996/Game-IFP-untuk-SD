@@ -295,3 +295,41 @@ untuk menjalankan suite jsdom) → GitHub Pages menolak symlink yang keluar dari
 `run-all.sh` membuat ulang symlink secara otomatis). Build ulang **built** dan terverifikasi live:
 GBP menyaji `{value:'campur',label:'🎲 Campur'}` (fix pil v1.1) dan absensi-wajah menyaji media
 query mode HP `max-width:540px` (fix ronde 3 yang sebelumnya juga belum ter-deploy).
+
+---
+
+# AUDIT KUIS FAMILY 100 — PAPAN JAWABAN TIDAK TAMPIL + FIX (01-10-2026)
+
+**Laporan pengguna:** layar permainan Family 100 hanya menampilkan soal & tombol STRIKE — tidak ada
+opsi/tombol jawaban sama sekali.
+
+**Akar (2 bug, reproduksi Chrome headless berhasil):**
+1. `renderBoard()` memberi petak tertutup kelas `hidden` — bentrok dengan utility global
+   `.hidden{display:none!important}` (dipakai #flash/#camtag) → SEMUA petak `display:none`,
+   papan terlihat kosong dan tak bisa diketuk. Ini bug sejak v1.0, baru kini ketahuan karena
+   audit asli menguji alur lewat API (doReveal), bukan keterlihatan visual petak.
+2. id `board` ganda: layar hasil juga memakai `#board`, sehingga papan juara ditulis ke
+   papan permainan (di layar tersembunyi) — hasil tampak tanpa papan juara.
+
+**Fix → v1.1:** kelas petak tertutup `hidden`→`down` (CSS `.tile.down` ikut diganti);
+papan juara → `#board-res`. Terverifikasi Chrome: 5/5 petak terlihat (252×97px, display:flex),
+tanda `? ? ?` via `::after`, ketuk → terbuka + POT naik.
+
+**Suite baru (masuk `audit/` permanen + `run-all.sh`):**
+- `ff.js` (jsdom) **22/22** — papan dirender & terlihat (kelas `down`, bukan display:none),
+  ketuk→terbuka+POT, tak bisa dibuka ulang, undo, strike×3→fase steal+banner, reveal tim giliran
+  ditolak saat steal, steal gagal/berhasil, ronde bergantian, hasil + papan juara di #board-res,
+  setup 3 baris pil, bank guru format `Jawaban:Poin`, guru kosong → MULAI ditolak + toast.
+  (Pelajaran uji: modal tertutup tetap di DOM (`#modal-root` tanpa `.open`) → selector wajib
+  `#modal-root.open .modal button`.)
+- `e2e-ff.js` (Chrome) **10/10** — papan 5/5 petak terlihat, `::after` `? ? ?`, ketuk→POT,
+  FPS 61, pertandingan penuh → layar hasil, papan juara tampak, kamera fake "🤖 AI aktif",
+  **dwell gesture sintetis 1 dtk membuka petak** (landmark 21 titik, telunjuk = L[8] di target;
+  inferensi asli dimatikan setelah aktif terverifikasi — onResults frame-kosong berketeristeran
+  >350 ms menghapus pointer sintetis lewat filter `now-seen<350`).
+- `mobile.js` +3 (portrait 390×844): papan tampil & muat layar, ketuk→POT, STRIKE terlihat
+  → **27/27**.
+
+**Hasil putaran: 35/35 asersi LULUS, 0 page error.** Screenshot `/tmp/shots-ff/` direview visual
+(papan + petak + POT + konfeti tampil benar). Kumulatif FF: 85 + 35 = **120 pengecekan**
+(32 di antaranya asersi baru FF; 3 termasuk bucket mobile). Grand total paket: **854 asersi**.

@@ -83,10 +83,10 @@ button{font-family:inherit;touch-action:manipulation}
 .tile .tnum{flex:none;width:5.4vmin;min-width:40px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.14);border:.4vmin solid rgba(140,180,255,.6);border-right:none;border-radius:1.4vmin 0 0 1.4vmin;font-weight:700;font-size:clamp(14px,2.6vmin,26px);color:#bcd0ff}
 .tile .ttext{flex:1;display:flex;align-items:center;padding:1vmin 1.6vmin;background:linear-gradient(180deg,#7c1e30,#5e1422);border:.4vmin solid rgba(255,120,140,.55);border-left:none;border-right:none;font-weight:600;font-size:clamp(14px,2.5vmin,26px);text-align:left;line-height:1.15;color:#fff;overflow-wrap:break-word}
 .tile .tpts{flex:none;width:9vmin;min-width:64px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#e0a010,#b57b00);border:.4vmin solid rgba(255,215,100,.8);border-left:none;border-radius:0 1.4vmin 1.4vmin 0;font-weight:700;font-size:clamp(14px,2.6vmin,26px);color:#fff}
-.tile.hidden .ttext{color:transparent}
-.tile.hidden .ttext::after{content:'? ? ?';color:#e59aa8;letter-spacing:.2em}
-.tile.hidden .tpts{color:transparent}
-.tile.hidden .tpts::after{content:'?';color:rgba(255,255,255,.75)}
+.tile.down .ttext{color:transparent}
+.tile.down .ttext::after{content:'? ? ?';color:#e59aa8;letter-spacing:.2em}
+.tile.down .tpts{color:transparent}
+.tile.down .tpts::after{content:'?';color:rgba(255,255,255,.75)}
 .tile.revealed .ttext{background:linear-gradient(180deg,#1fa85e,#137a41);border-color:rgba(160,255,200,.55)}
 .tile.revealed{animation:flipin .5s}
 @keyframes flipin{0%{transform:rotateX(90deg)}60%{transform:rotateX(-12deg)}100%{transform:rotateX(0)}}

@@ -7,7 +7,7 @@ kelima aplikasi pembelajaran interaktif untuk papan sentuh (IFP):
 |---|---|---|---|---|
 | 1 | 🥊 Game Gesture Battle | `gesture-battle/` | v1.2 | 116/116 |
 | 2 | 💰 Who Wants to Be a Billionaire? | `kuis-miliaran/` | v1.0 | 101/101 |
-| 3 | 🪑 Kuis Family 100 | `family-100/` | v1.0 | 85/85 |
+| 3 | 🪑 Kuis Family 100 | `family-100/` | v1.1 | 120/120 (+35 r5) |
 | 4 | ⚔️ Clash of Champions | `clash-champions/` | v1.0 | 90/90 |
 | 5 | 📷 Absensi Wajah Cerdas | `absensi-wajah/` | v3.0 | 163/163 |
 | 6 | 🫧 Gesture Battle PRO | `gesture-battle-pro/` | v1.1 | 47/47 +38 (r4) |
@@ -78,3 +78,15 @@ duel benar/salah/beku, soal guru kosong & terisi, solo), Chrome E2E `audit/e2e-g
 0 page error), mode HP `mobile.js` bertambah 5 → **24/24**. Total baru **38/38**; kumulatif GBP
 **47+38 = 85 asersi**. Screenshot setup & permainan terverifikasi visual (pil berlabel jelas,
 skor dua tim, timer, gelembung ring tim).
+
+## Perbaikan Bug + Audit Kuis Family 100 (01-10-2026)
+Laporan pengguna: di layar permainan tak ada opsi/tombol menjawab — papan jawaban kosong.
+Akar (2 bug): **(1)** petak tertutup diberi kelas `hidden`, bertabrakan dengan utility global
+`.hidden{display:none!important}` → semua petak `display:none` (tak terlihat & tak bisa diketuk);
+**(2)** id `board` dipakai dua layar — papan juara di layar hasil ikut menimpa papan permainan.
+**Diperbaiki → v1.1** (kelas petak `down`; papan juara pindah ke `#board-res`). Audit tambahan:
+jsdom `audit/ff.js` **22/22** (papan terlihat & ketuk→terbuka, undo, strike×3→steal, steal
+berhasil/gagal, ronde bergantian, hasil + papan juara, bank guru `Jawaban:Poin`, guru kosong
+ditolak), Chrome E2E `audit/e2e-ff.js` **10/10** (papan 5/5 terlihat, tanda ? ? ?, ketuk→POT,
+FPS 61, pertandingan penuh → hasil, kamera fake + dwell gesture membuka petak), mode HP +3 →
+**27/27**. Total baru **35/35**; kumulatif FF **120 asersi**. Grand total paket: 819 + 35 = **854 asersi**.

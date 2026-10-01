@@ -93,10 +93,10 @@ button{font-family:inherit;touch-action:manipulation}
 .tile .tnum{flex:none;width:5.4vmin;min-width:40px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.14);border:.4vmin solid rgba(140,180,255,.6);border-right:none;border-radius:1.4vmin 0 0 1.4vmin;font-weight:700;font-size:clamp(14px,2.6vmin,26px);color:#bcd0ff}
 .tile .ttext{flex:1;display:flex;align-items:center;padding:1vmin 1.6vmin;background:linear-gradient(180deg,#7c1e30,#5e1422);border:.4vmin solid rgba(255,120,140,.55);border-left:none;border-right:none;font-weight:600;font-size:clamp(14px,2.5vmin,26px);text-align:left;line-height:1.15;color:#fff;overflow-wrap:break-word}
 .tile .tpts{flex:none;width:9vmin;min-width:64px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#e0a010,#b57b00);border:.4vmin solid rgba(255,215,100,.8);border-left:none;border-radius:0 1.4vmin 1.4vmin 0;font-weight:700;font-size:clamp(14px,2.6vmin,26px);color:#fff}
-.tile.hidden .ttext{color:transparent}
-.tile.hidden .ttext::after{content:'? ? ?';color:#e59aa8;letter-spacing:.2em}
-.tile.hidden .tpts{color:transparent}
-.tile.hidden .tpts::after{content:'?';color:rgba(255,255,255,.75)}
+.tile.down .ttext{color:transparent}
+.tile.down .ttext::after{content:'? ? ?';color:#e59aa8;letter-spacing:.2em}
+.tile.down .tpts{color:transparent}
+.tile.down .tpts::after{content:'?';color:rgba(255,255,255,.75)}
 .tile.revealed .ttext{background:linear-gradient(180deg,#1fa85e,#137a41);border-color:rgba(160,255,200,.55)}
 .tile.revealed{animation:flipin .5s}
 @keyframes flipin{0%{transform:rotateX(90deg)}60%{transform:rotateX(-12deg)}100%{transform:rotateX(0)}}
@@ -252,7 +252,7 @@ button{font-family:inherit;touch-action:manipulation}
     <div id="res-title">🏆</div>
     <div id="res-big"></div>
     <div id="res-sub"></div>
-    <div id="board"></div>
+    <div id="board-res"></div>
     <div class="setup-actions">
       <button class="btn b-gold" id="btn-res-again">🔁 Tanding Ulang</button>
       <button class="btn b-blue" id="btn-res-menu">🏠 Menu Utama</button>
@@ -553,13 +553,13 @@ function renderBoard(force){
   if(!force&&existing.length===S.q.a.length){
     existing.forEach((b,i)=>{
       const ans=S.q.a[i];
-      b.className='tile'+(ans.r?' revealed':' hidden');
+      b.className='tile'+(ans.r?' revealed':' down');
     });
   }else{
     el.innerHTML='';
     S.q.a.forEach((ans,i)=>{
       const b=document.createElement('button');
-      b.className='tile'+(ans.r?' revealed':' hidden');
+      b.className='tile'+(ans.r?' revealed':' down');
       b.dataset.i=String(i);
       b.innerHTML='<span class="tnum">'+(i+1)+'</span><span class="ttext">'+esc(ans.t)+'</span><span class="tpts">'+ans.p+'</span>';
       el.appendChild(b);
@@ -715,7 +715,7 @@ function finishGame(){
     '<span class="rt-score">'+S.scores[i]+'</span></div>').join('');
   $('#res-sub').textContent=cfg.rounds+' ronde selesai • semangat bertanding!';
   const board=addFFBoard(cfg.t1,cfg.t2,S.scores[0],S.scores[1]);
-  $('#board').innerHTML='<div style="text-align:center;font-weight:700;color:#ffd043;margin-bottom:.6vmin">🏆 PAPAN JUARA</div>'+
+  $('#board-res').innerHTML='<div style="text-align:center;font-weight:700;color:#ffd043;margin-bottom:.6vmin">🏆 PAPAN JUARA</div>'+
     board.map((b,i)=>'<div class="brow'+(i===0?' top1':'')+'"><span class="bpos">'+(i+1)+'</span><span class="bname">'+esc(b.w)+' vs '+esc(b.l)+'</span><span class="bprize">'+b.p+' poin</span></div>').join('');
   if(!tie){FX.startRain(6000);Snd.fanfare();}else Snd.sad();
 }

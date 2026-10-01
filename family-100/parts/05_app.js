@@ -105,13 +105,13 @@ function renderBoard(force){
   if(!force&&existing.length===S.q.a.length){
     existing.forEach((b,i)=>{
       const ans=S.q.a[i];
-      b.className='tile'+(ans.r?' revealed':' hidden');
+      b.className='tile'+(ans.r?' revealed':' down');
     });
   }else{
     el.innerHTML='';
     S.q.a.forEach((ans,i)=>{
       const b=document.createElement('button');
-      b.className='tile'+(ans.r?' revealed':' hidden');
+      b.className='tile'+(ans.r?' revealed':' down');
       b.dataset.i=String(i);
       b.innerHTML='<span class="tnum">'+(i+1)+'</span><span class="ttext">'+esc(ans.t)+'</span><span class="tpts">'+ans.p+'</span>';
       el.appendChild(b);
@@ -267,7 +267,7 @@ function finishGame(){
     '<span class="rt-score">'+S.scores[i]+'</span></div>').join('');
   $('#res-sub').textContent=cfg.rounds+' ronde selesai • semangat bertanding!';
   const board=addFFBoard(cfg.t1,cfg.t2,S.scores[0],S.scores[1]);
-  $('#board').innerHTML='<div style="text-align:center;font-weight:700;color:#ffd043;margin-bottom:.6vmin">🏆 PAPAN JUARA</div>'+
+  $('#board-res').innerHTML='<div style="text-align:center;font-weight:700;color:#ffd043;margin-bottom:.6vmin">🏆 PAPAN JUARA</div>'+
     board.map((b,i)=>'<div class="brow'+(i===0?' top1':'')+'"><span class="bpos">'+(i+1)+'</span><span class="bname">'+esc(b.w)+' vs '+esc(b.l)+'</span><span class="bprize">'+b.p+' poin</span></div>').join('');
   if(!tie){FX.startRain(6000);Snd.fanfare();}else Snd.sad();
 }

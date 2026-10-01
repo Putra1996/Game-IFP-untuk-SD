@@ -27,6 +27,13 @@ button{font-family:inherit;cursor:pointer;color:inherit}
 .center-col{display:flex;flex-direction:column;gap:1.8vmin;max-width:110vmin;margin:0 auto;width:100%}
 .split{display:flex;gap:1.8vmin;align-items:flex-start;justify-content:center;flex-wrap:wrap}
 .split .col{flex:1 1 46vmin;max-width:58vmin;min-width:40vmin}
+@media (max-width:540px), (max-aspect-ratio:4/5){
+  .split{flex-direction:column}
+  .split .col{max-width:100%;min-width:0;width:100%}
+  #scan-list{max-height:44vh}
+  #apphead .ht{font-size:4.6vmin}
+  .tbtn2{font-size:3.4vmin;padding:2vmin 3.4vmin}
+}
 .flab{display:block;font-weight:700;font-size:2.4vmin;margin:1.2vmin 0 .6vmin}
 .hint{color:var(--mut);font-size:2.1vmin;font-weight:500;line-height:1.45}
 .chips{display:flex;gap:1vmin;flex-wrap:wrap}

@@ -1,0 +1,65 @@
+/* E2E ABSENSI WAJAH v3 — Chrome headless, fake cam + face-api CDN */
+const puppeteer=require('puppeteer');
+const fs=require('fs');
+let PASS=0,FAIL=0;
+const T=(n,k,c)=>{if(k){PASS++;console.log('  ✓ '+n+(c!==undefined?'  ['+String(c).slice(0,110)+']':''));}else{FAIL++;console.log('  ✗ GAGAL: '+n+' ['+(c===undefined?'-':JSON.stringify(c)).slice(0,120)+']');}};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+(async()=>{
+  const browser=await puppeteer.launch({headless:'new',args:['--no-sandbox','--use-fake-ui-for-media-stream','--use-fake-device-for-media-stream','--window-size=960,620']});
+  const page=await browser.newPage();
+  await page.setViewport({width:960,height:620});
+  const errs=[];
+  page.on('pageerror',e=>errs.push(e.message));
+  await page.evaluateOnNewDocument(()=>{
+    const v=Array.from({length:128},(_,i)=>+(Math.sin(i*7.13)*0.4).toFixed(5));
+    localStorage.setItem('aw_students_v1',JSON.stringify([{id:'s1',nm:'Budi Santoso',cls:'5A',av:null,desc:v}]));
+    localStorage.setItem('aw_classes_v1',JSON.stringify(['5A']));
+    localStorage.setItem('aw_cfg_v1',JSON.stringify({cls:'5A',mode:'kamera',tts:true}));
+  });
+  await page.goto('file:///home/user/absensi-wajah/index.html');
+  await sleep(1200);
+  fs.mkdirSync('/tmp/shots-aw',{recursive:true});
+  T('Landing Mode Absensi + header biru',await page.evaluate(()=>document.querySelector('.screen.active').id==='scr-scan'&&/Absensi Wajah Cerdas/.test(document.getElementById('apphead').textContent)));
+  T('Split: kartu kamera + panel Absensi Hari Ini',await page.evaluate(()=>!!document.getElementById('camcard')&&/Absensi Hari Ini/.test(document.querySelector('#scr-scan .split .panel:last-child .phead').textContent)));
+  await page.screenshot({path:'/tmp/shots-aw/01-mode-absensi.png'});
+  await page.evaluate(()=>document.querySelector('#tabs-scan .tbtn2[data-go="data"]').click());
+  await page.waitForSelector('#scr-data.active',{timeout:3000});
+  T('Tab Pendaftaran: Budi terdaftar',/Budi Santoso/.test(await page.$eval('#stu-list',e=>e.textContent)));
+  await page.screenshot({path:'/tmp/shots-aw/02-pendaftaran.png'});
+  await page.evaluate(()=>document.querySelector('#tabs-data .tbtn2[data-go="absen"]').click());
+  await page.waitForSelector('#scr-scan.active',{timeout:3000});
+  await page.evaluate(()=>document.getElementById('btn-start').click());
+  await sleep(600);
+  let aiOk=false,tag='';
+  for(let i=0;i<40;i++){tag=await page.$eval('#camtag',e=>e.textContent);if(/AI aktif/.test(tag)){aiOk=true;break;}await sleep(500);}
+  T('Fake camera + model face-api termuat',aiOk,tag);
+  T('Garis pindai (scanband) menyala',await page.evaluate(()=>document.getElementById('scanband').classList.contains('on')));
+  const fps=await page.evaluate(()=>new Promise(res=>{let n=0;const t0=performance.now();(function f(){n++;if(performance.now()-t0<1500)requestAnimationFrame(f);else res(Math.round(n/1.5));})();}));
+  console.log('  ℹ FPS sandbox: '+fps+' (IFP nyata 60)');
+  await page.evaluate(()=>{
+    const s=JSON.parse(localStorage.getItem('aw_students_v1'))[0];
+    window.__AW.onFaces([{x:.35,y:.3,w:.22,h:.28,d:s.desc}]);
+  });
+  await page.waitForSelector('#scan-strip.show',{timeout:4000});
+  const stripTxt=await page.$eval('#scan-strip',e=>e.textContent);
+  T('Strip "Terdeteksi: BUDI SANTOSO (5A) — HADIR!"',/Terdeteksi: BUDI SANTOSO \(5A\) — HADIR!/.test(stripTxt),stripTxt);
+  T('Welcome "Selamat Datang, Budi Santoso!"',await page.evaluate(()=>/Selamat Datang, Budi Santoso!/.test(document.getElementById('welcome').textContent)));
+  await page.screenshot({path:'/tmp/shots-aw/03-terdeteksi.png'});
+  await page.evaluate(()=>document.getElementById('btn-done').click());
+  await page.waitForSelector('#modal-root.open',{timeout:3000});
+  await page.evaluate(()=>{[...document.querySelectorAll('#modal-root .mrow button')].find(b=>/Finalisasi/.test(b.textContent)).click();});
+  await page.waitForSelector('#scr-recap.active',{timeout:3000});
+  const sums=await page.$$eval('#rc-sum .cnt b',els=>els.map(e=>e.textContent));
+  T('Log Kehadiran: H=1',sums[0]==='1',sums.join('|'));
+  await page.screenshot({path:'/tmp/shots-aw/04-log.png'});
+  await page.evaluate(()=>document.getElementById('btn-xls2').click());
+  await sleep(400);
+  T('Excel bulanan berisi kelas + ✓',await page.evaluate(()=>{const s=window.__AW.buildXLS(document.getElementById('xls-month').value||'2026-01');return /DAFTAR HADIR SISWA KELAS 5A/.test(s)&&/\u2713/.test(s);}));
+  await page.evaluate(()=>document.querySelector('#tabs-recap .tbtn2[data-go="absen"]').click());
+  await page.waitForSelector('#scr-scan.active',{timeout:3000});
+  T('Tombol MULAI aktif lagi',await page.evaluate(()=>document.getElementById('btn-start').disabled===false));
+  T('0 page error kritis',errs.filter(e=>!/favicon|net::ERR|face-api|WASM|gpu|dbus/.test(e)).length===0,errs.slice(0,3));
+  await browser.close();
+  console.log('\nE2E ABSENSI v3: '+PASS+' LULUS, '+FAIL+' GAGAL');
+  process.exit(FAIL?1:0);
+})().catch(e=>{console.error('FATAL:',e);process.exit(1);});

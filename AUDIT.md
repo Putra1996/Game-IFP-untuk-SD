@@ -235,3 +235,22 @@ ter-render, dwell + ring, jawaban turun 2400 ms, gameplay hijau/merah/timeout/ha
 0 page error; screenshot dibandingkan dgn video).
 
 Total kartu: **AW 163 · BS 79** → grand total paket **686 asersi**.
+
+---
+
+# AUDIT MENDALAM + SUITE AUDIT PERMANEN + MODE HP (01-10-2026)
+
+Suite audit kini disimpan permanen di `audit/` (jalankan: `bash audit/run-all.sh`) —
+tidak lagi hilang saat lingkungan uji di-reset. Isi: `ab-reg.js` (15), `ab-add.js` (9),
+`aw3.js` (25), `mobile.js` (19), `e2e-ab.js` (16), `e2e-aw.js` (11).
+
+Hasil putaran ini: **95/95 asersi LULUS, 0 page error** (jsdom 49 + Chrome E2E 27 + mode HP 19).
+
+**Uji baru — MODE HP (portrait 390×844, layar sentuh):** gerbang A/B + **login password 1234**
+dari HP, setup & tombol muat terlihat penuh tanpa scroll horizontal, game jalan + ketuk zona
+berfungsi, absensi landing/pendaftaran/3-tab, Family 100 mulai bermain. **1 perbaikan nyata:**
+panel Mode Absensi absensi tergencet berdampingan di layar sempit (kartu kamera hanya 159px)
+→ media query: panel menumpuk penuh di ≤540px/porlet. Verifikasi ulang 19/19.
+
+Deployment GitHub Pages terverifikasi hidup: benar-salah/absensi-wajah/family-100 → HTTP 200,
+versi terkini (v2.1: gerbang "Kuis Interaktif" + kecepatan jawaban turun) sudah online.
